@@ -105,4 +105,4 @@ Flutter · Material 3 · `camera` · `image_picker` · `tflite_flutter` · `flut
 
 ---
 
-*Built with 🤖 [Claude Code](https://claude.com/claude-code)*
+
