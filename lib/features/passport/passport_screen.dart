@@ -191,6 +191,8 @@ class _RecoveryChartCard extends StatelessWidget {
     final last = points.last;
     final recovering =
         last.severityPercentage < first.severityPercentage - 0.5;
+    final trendColor =
+        recovering ? AppColors.severityHealthy : AppColors.severitySevere;
 
     return Card(
       child: Padding(
@@ -202,9 +204,7 @@ class _RecoveryChartCard extends StatelessWidget {
               children: [
                 Icon(
                   recovering ? Icons.trending_down : Icons.trending_up,
-                  color: recovering
-                      ? AppColors.severityHealthy
-                      : AppColors.severitySevere,
+                  color: trendColor,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -214,6 +214,11 @@ class _RecoveryChartCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                ),
+                _PulsingStatusBadge(
+                  label: recovering ? 'Status: Improving' : 'Status: Watch',
+                  color: trendColor,
+                  pulsing: recovering,
                 ),
               ],
             ),
@@ -226,6 +231,28 @@ class _RecoveryChartCard extends StatelessWidget {
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.outline,
               ),
+            ),
+            const SizedBox(height: 12),
+            // Side-by-side first vs latest scan comparison.
+            Row(
+              children: [
+                Expanded(
+                  child: _ComparisonThumb(
+                    entry: first,
+                    caption: 'Day ${dayOf(first)}',
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Icon(Icons.arrow_forward, color: trendColor),
+                ),
+                Expanded(
+                  child: _ComparisonThumb(
+                    entry: last,
+                    caption: 'Day ${dayOf(last)}',
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -245,6 +272,134 @@ class _RecoveryChartCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Small pulsing status pill ("Status: Improving").
+class _PulsingStatusBadge extends StatefulWidget {
+  const _PulsingStatusBadge({
+    required this.label,
+    required this.color,
+    required this.pulsing,
+  });
+
+  final String label;
+  final Color color;
+  final bool pulsing;
+
+  @override
+  State<_PulsingStatusBadge> createState() => _PulsingStatusBadgeState();
+}
+
+class _PulsingStatusBadgeState extends State<_PulsingStatusBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    if (widget.pulsing) _pulse.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final badge = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: widget.color,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        widget.label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+    if (!widget.pulsing) return badge;
+    return FadeTransition(
+      opacity: Tween(begin: 0.7, end: 1.0).animate(_pulse),
+      child: ScaleTransition(
+        scale: Tween(begin: 0.96, end: 1.03).animate(_pulse),
+        child: badge,
+      ),
+    );
+  }
+}
+
+/// Thumbnail + severity caption used in the Day-vs-Day comparison row.
+class _ComparisonThumb extends StatelessWidget {
+  const _ComparisonThumb({required this.entry, required this.caption});
+
+  final PassportEntry entry;
+  final String caption;
+
+  Color get _severityColor => entry.severityPercentage > 30
+      ? AppColors.severitySevere
+      : entry.severityPercentage >= 10
+          ? AppColors.severityModerate
+          : AppColors.severityHealthy;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: AspectRatio(
+            aspectRatio: 4 / 3,
+            child: entry.imagePath.isEmpty
+                ? const ColoredBox(
+                    color: Colors.black12,
+                    child: Icon(Icons.eco, size: 32),
+                  )
+                : Image.file(
+                    File(entry.imagePath),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stack) => const ColoredBox(
+                      color: Colors.black12,
+                      child: Icon(Icons.eco, size: 32),
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          caption,
+          style: theme.textTheme.bodySmall
+              ?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+          decoration: BoxDecoration(
+            color: _severityColor.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            '${entry.severityPercentage.toStringAsFixed(0)}% infected',
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w800,
+              color: _severityColor,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

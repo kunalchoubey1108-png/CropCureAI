@@ -309,36 +309,49 @@ class _SmartScannerScreenState extends State<SmartScannerScreen>
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Gallery fallback in the bottom corner.
-                IconButton.filledTonal(
-                  onPressed: _pickFromGallery,
-                  iconSize: 28,
-                  tooltip: 'Pick from gallery',
-                  icon: const Icon(Icons.photo_library),
-                ),
-                // Shutter.
-                GestureDetector(
-                  onTap: cameraReady ? _captureFromCamera : null,
-                  child: Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
-                      color: cameraReady
-                          ? AppColors.forestGreen
-                          : Colors.white24,
+                // Gallery fallback in the bottom corner: large, labeled.
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.18),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: IconButton(
+                        onPressed: _pickFromGallery,
+                        iconSize: 30,
+                        tooltip: 'Pick from gallery',
+                        icon: const Icon(
+                          Icons.photo_library,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.energy_savings_leaf,
-                      color: Colors.white,
-                      size: 34,
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Gallery',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                // Spacer matching the gallery button, keeps shutter centered.
-                const SizedBox(width: 48, height: 48),
+                // Tactile shutter with an animated outer ripple ring.
+                _RippleShutterButton(
+                  enabled: cameraReady,
+                  onTap: _captureFromCamera,
+                ),
+                // Spacer matching the gallery column, keeps shutter centered.
+                const SizedBox(width: 62, height: 48),
               ],
             ),
           ),
@@ -360,6 +373,95 @@ class _SmartScannerScreenState extends State<SmartScannerScreen>
               'Validating Frame & Running Edge Model...',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Large circular capture button with a continuously expanding ripple
+/// ring so it reads as "alive" and tappable from across a demo room.
+class _RippleShutterButton extends StatefulWidget {
+  const _RippleShutterButton({required this.enabled, required this.onTap});
+
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  State<_RippleShutterButton> createState() => _RippleShutterButtonState();
+}
+
+class _RippleShutterButtonState extends State<_RippleShutterButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ripple;
+
+  @override
+  void initState() {
+    super.initState();
+    _ripple = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ripple.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.enabled ? widget.onTap : null,
+      child: SizedBox(
+        width: 108,
+        height: 108,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (widget.enabled)
+              AnimatedBuilder(
+                animation: _ripple,
+                builder: (context, _) {
+                  final t = _ripple.value;
+                  return Container(
+                    width: 80 + 28 * t,
+                    height: 80 + 28 * t,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.7 * (1 - t)),
+                        width: 3,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 5),
+                color: widget.enabled ? AppColors.emerald : Colors.white24,
+                boxShadow: widget.enabled
+                    ? [
+                        BoxShadow(
+                          color: AppColors.emerald.withValues(alpha: 0.55),
+                          blurRadius: 18,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : null,
+              ),
+              child: const Icon(
+                Icons.energy_savings_leaf,
+                color: Colors.white,
+                size: 36,
+              ),
             ),
           ],
         ),

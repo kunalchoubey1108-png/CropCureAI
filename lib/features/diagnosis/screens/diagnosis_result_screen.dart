@@ -10,10 +10,12 @@ import '../../../core/services/tflite_service.dart';
 import '../../../core/services/voice_assistant_service.dart';
 import '../../../core/utils/image_checker.dart';
 import '../../escalation/escalation_service.dart';
+import '../../escalation/expert_queue_screen.dart';
 import '../../passport/passport_service.dart';
 import '../widgets/heatmap_overlay_widget.dart';
 import '../widgets/severity_calculator.dart';
-import '../widgets/why_this_diagnosis_dialog.dart';
+import '../widgets/severity_gauge.dart';
+import '../widgets/why_this_diagnosis_card.dart';
 
 /// Everything the results UI needs, produced by the diagnosis pipeline.
 class DiagnosisPipelineOutput {
@@ -209,6 +211,7 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
           if (!snapshot.hasData) return const SizedBox.shrink();
           return _VoiceControls(
             voice: _voice,
+            lang: _lang,
             onPlay: () => _voice.speak(_speechFor(snapshot.data!), _lang),
           );
         },
@@ -221,11 +224,13 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
       case ReliabilityState.outOfBoundsReject:
         return _AlertBody(
           color: AppColors.severitySevere,
-          icon: Icons.error_outline,
+          icon: Icons.no_photography,
+          badge: 'INVALID PHOTO',
           title: 'No Valid Leaf Detected',
           message:
-              'Please point the camera at a crop leaf.\nकृपया कैमरा फसल की '
-              'पत्ती की ओर करें।',
+              'No leaf found. Please point the camera at a crop leaf.\n'
+              'कृपया कैमरा फसल की पत्ती की ओर करें।',
+          actionIcon: Icons.camera_alt,
           actionLabel: 'Scan Again',
           onAction: () => Navigator.of(context).pop(),
         );
@@ -234,17 +239,26 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
             (data.result.confidenceScore * 100).toStringAsFixed(0);
         return _AlertBody(
           color: AppColors.severityModerate,
-          icon: Icons.help_outline,
+          icon: _queued ? Icons.cloud_done : Icons.cloud_upload,
+          badge: _queued ? 'SCAN QUEUED OFFLINE' : 'NEEDS EXPERT REVIEW',
           title: 'Inconclusive Scan',
           message:
               'Confidence $pct% — below the '
               '${(AIReliabilityEngine.highConfidenceThreshold * 100).round()}% '
               'reliability threshold. Insufficient evidence for a diagnosis.\n'
               'Queued scans are reviewed by an agriculture expert.',
-          actionLabel: _queued ? 'Saved to Expert Queue ✓' : 'Save to Expert Queue',
+          actionIcon: _queued ? Icons.check : Icons.support_agent,
+          actionLabel:
+              _queued ? 'Saved to Expert Queue ✓' : 'Save to Expert Queue',
           onAction: _queued ? null : () => _saveToExpertQueue(data.result),
-          secondaryLabel: 'Scan Again',
-          onSecondary: () => Navigator.of(context).pop(),
+          secondaryLabel: _queued ? 'View Expert Queue' : 'Scan Again',
+          onSecondary: _queued
+              ? () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const ExpertQueueScreen(),
+                    ),
+                  )
+              : () => Navigator.of(context).pop(),
         );
       case ReliabilityState.highConfidence:
         return _HighConfidenceBody(
@@ -256,19 +270,50 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
   }
 }
 
-/// Floating speaker controls: play/stop plus a pause/resume mini button
-/// while audio is active.
-class _VoiceControls extends StatelessWidget {
-  const _VoiceControls({required this.voice, required this.onPlay});
+/// Floating speaker controls: a large extended FAB with a language badge
+/// and a pulsing ring while audio plays (so judges can see TTS is live),
+/// plus a pause/resume mini button when active.
+class _VoiceControls extends StatefulWidget {
+  const _VoiceControls({
+    required this.voice,
+    required this.lang,
+    required this.onPlay,
+  });
 
   final VoiceAssistantService voice;
+  final String lang;
   final VoidCallback onPlay;
 
   @override
+  State<_VoiceControls> createState() => _VoiceControlsState();
+}
+
+class _VoiceControlsState extends State<_VoiceControls>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final hindi = widget.lang == 'hi';
     return ValueListenableBuilder<TtsPlaybackState>(
-      valueListenable: voice.state,
+      valueListenable: widget.voice.state,
       builder: (context, state, _) {
+        final playing = state == TtsPlaybackState.playing;
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -276,26 +321,79 @@ class _VoiceControls extends StatelessWidget {
             if (state != TtsPlaybackState.stopped) ...[
               FloatingActionButton.small(
                 heroTag: 'tts_pause',
-                onPressed: state == TtsPlaybackState.playing
-                    ? voice.pause
-                    : voice.resume,
-                child: Icon(
-                  state == TtsPlaybackState.playing
-                      ? Icons.pause
-                      : Icons.play_arrow,
-                ),
+                onPressed: playing ? widget.voice.pause : widget.voice.resume,
+                child: Icon(playing ? Icons.pause : Icons.play_arrow),
               ),
               const SizedBox(height: 12),
             ],
-            FloatingActionButton(
-              heroTag: 'tts_main',
-              onPressed:
-                  state == TtsPlaybackState.stopped ? onPlay : voice.stop,
-              child: Icon(
-                state == TtsPlaybackState.stopped
-                    ? Icons.volume_up
-                    : Icons.stop,
-              ),
+            Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                // Pulsing sound-wave ring, visible only while speaking.
+                if (playing)
+                  AnimatedBuilder(
+                    animation: _pulse,
+                    builder: (context, _) {
+                      final t = _pulse.value;
+                      return Positioned.fill(
+                        child: Center(
+                          child: Container(
+                            width: 130 + 44 * t,
+                            height: 58 + 30 * t,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(48),
+                              border: Border.all(
+                                color: AppColors.emerald
+                                    .withValues(alpha: 0.6 * (1 - t)),
+                                width: 3,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                FloatingActionButton.extended(
+                  heroTag: 'tts_main',
+                  backgroundColor:
+                      playing ? AppColors.emerald : AppColors.forestGreen,
+                  foregroundColor: Colors.white,
+                  elevation: 6,
+                  onPressed: state == TtsPlaybackState.stopped
+                      ? widget.onPlay
+                      : widget.voice.stop,
+                  icon: Icon(
+                    state == TtsPlaybackState.stopped
+                        ? Icons.volume_up
+                        : Icons.stop,
+                    size: 30,
+                  ),
+                  label: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        playing
+                            ? (hindi ? 'बोल रहा है...' : 'Speaking...')
+                            : (hindi ? 'सुनें' : 'Listen'),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        hindi ? 'Hindi Audio' : 'English Audio',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         );
@@ -304,12 +402,16 @@ class _VoiceControls extends StatelessWidget {
   }
 }
 
-class _AlertBody extends StatelessWidget {
+/// High-impact full-screen state card (OOD rejection / expert escalation):
+/// pulsing halo icon, shouty status badge, and large primary action.
+class _AlertBody extends StatefulWidget {
   const _AlertBody({
     required this.color,
     required this.icon,
+    required this.badge,
     required this.title,
     required this.message,
+    required this.actionIcon,
     required this.actionLabel,
     required this.onAction,
     this.secondaryLabel,
@@ -318,57 +420,132 @@ class _AlertBody extends StatelessWidget {
 
   final Color color;
   final IconData icon;
+  final String badge;
   final String title;
   final String message;
+  final IconData actionIcon;
   final String actionLabel;
   final VoidCallback? onAction;
   final String? secondaryLabel;
   final VoidCallback? onSecondary;
 
   @override
+  State<_AlertBody> createState() => _AlertBodyState();
+}
+
+class _AlertBodyState extends State<_AlertBody>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final color = widget.color;
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Card(
-          color: color.withValues(alpha: 0.08),
+          color: AppColors.statusTint(color),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: color.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: color.withValues(alpha: 0.5), width: 1.5),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 64, color: color),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w700,
+                // Animated icon inside a breathing halo.
+                AnimatedBuilder(
+                  animation: _pulse,
+                  builder: (context, _) {
+                    final t = _pulse.value;
+                    return Container(
+                      width: 116,
+                      height: 116,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: color.withValues(alpha: 0.10 + 0.08 * t),
+                        border: Border.all(
+                          color: color.withValues(alpha: 0.35 + 0.4 * t),
+                          width: 2.5,
+                        ),
+                      ),
+                      child: Transform.scale(
+                        scale: 0.94 + 0.09 * t,
+                        child: Icon(widget.icon, size: 58, color: color),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 18),
+                // Status badge banner.
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
                   ),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    widget.badge,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  widget.title,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(color: color),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  message,
+                  widget.message,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: onAction,
+                const SizedBox(height: 26),
+                FilledButton.icon(
+                  onPressed: widget.onAction,
                   style: FilledButton.styleFrom(backgroundColor: color),
-                  child: Text(actionLabel),
+                  icon: Icon(widget.actionIcon),
+                  label: Text(widget.actionLabel),
                 ),
-                if (secondaryLabel != null) ...[
-                  const SizedBox(height: 8),
+                if (widget.secondaryLabel != null) ...[
+                  const SizedBox(height: 10),
                   TextButton(
-                    onPressed: onSecondary,
-                    child: Text(secondaryLabel!),
+                    onPressed: widget.onSecondary,
+                    child: Text(
+                      widget.secondaryLabel!,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ],
               ],
@@ -390,12 +567,6 @@ class _HighConfidenceBody extends StatelessWidget {
   final DiagnosisPipelineOutput data;
   final String lang;
   final String imagePath;
-
-  Color get _severityColor => switch (data.severity?.category) {
-        SeverityCategory.severe => AppColors.severitySevere,
-        SeverityCategory.moderate => AppColors.severityModerate,
-        SeverityCategory.mild || null => AppColors.severityHealthy,
-      };
 
   @override
   Widget build(BuildContext context) {
@@ -461,63 +632,19 @@ class _HighConfidenceBody extends StatelessWidget {
           ),
         ),
 
-        // Severity progress bar.
+        // Radial severity gauge + tissue breakdown.
         if (severity != null && isDisease) ...[
           const SizedBox(height: 8),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Severity',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        '${lang == 'hi' ? severity.category.labelHi : severity.category.labelEn}'
-                        ' — ${severity.percentLabel}',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: _severityColor,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: (severity.infectionPercent / 100).clamp(0.0, 1.0),
-                      minHeight: 12,
-                      color: _severityColor,
-                      backgroundColor:
-                          _severityColor.withValues(alpha: 0.15),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          SeverityGauge(severity: severity, lang: lang),
         ],
 
-        // Explainability.
+        // Explainability accordion.
         if (severity != null) ...[
           const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: () => WhyThisDiagnosisDialog.show(
-              context,
-              result: result,
-              severity: severity,
-              frameQuality: data.frameQuality,
-            ),
-            icon: const Icon(Icons.psychology),
-            label: const Text('Why This Diagnosis?'),
+          WhyThisDiagnosisCard(
+            result: result,
+            severity: severity,
+            frameQuality: data.frameQuality,
           ),
         ],
 

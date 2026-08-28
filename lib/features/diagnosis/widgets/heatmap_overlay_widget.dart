@@ -74,7 +74,8 @@ class _GradCAMHeatmapOverlayState extends State<GradCAMHeatmapOverlay> {
                     ),
                     AnimatedOpacity(
                       opacity: _showHeatmap ? 1 : 0,
-                      duration: const Duration(milliseconds: 350),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
                       child: severity == null
                           ? const SizedBox.shrink()
                           : CustomPaint(
@@ -110,17 +111,60 @@ class _GradCAMHeatmapOverlayState extends State<GradCAMHeatmapOverlay> {
               ),
             ),
             const SizedBox(height: 12),
-            FilledButton.tonalIcon(
-              onPressed: severity == null
+            // Animated toggle chip: fills with heat-orange when active.
+            GestureDetector(
+              onTap: severity == null
                   ? null
                   : () => setState(() => _showHeatmap = !_showHeatmap),
-              icon: Icon(
-                _showHeatmap ? Icons.visibility_off : Icons.local_fire_department,
-              ),
-              label: Text(
-                _showHeatmap
-                    ? 'Hide AI Focus (Grad-CAM)'
-                    : 'Show AI Focus (Grad-CAM)',
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: _showHeatmap
+                      ? const Color(0xFFFF6D00)
+                      : Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(26),
+                  boxShadow: _showHeatmap
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFFFF6D00)
+                                .withValues(alpha: 0.4),
+                            blurRadius: 12,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _showHeatmap
+                          ? Icons.visibility_off
+                          : Icons.local_fire_department,
+                      size: 22,
+                      color: _showHeatmap
+                          ? Colors.white
+                          : Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _showHeatmap
+                          ? 'Hide AI Focus (Grad-CAM)'
+                          : 'Show AI Focus (Grad-CAM)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: _showHeatmap
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
