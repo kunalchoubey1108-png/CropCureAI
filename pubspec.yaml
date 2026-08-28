@@ -1,0 +1,47 @@
+name: cropcure_ai
+description: "CropCureAI — offline-first agricultural computer vision assistant for crop disease diagnosis."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Camera & image acquisition
+  camera: ^0.10.5+9
+  image_picker: ^1.0.7
+
+  # On-device inference
+  # 0.10.x does not compile on Dart >= 3.5 (removed UnmodifiableUint8ListView)
+  tflite_flutter: ^0.12.1
+  image: ^4.1.7
+
+  # Accessibility / voice output
+  # 3.x's Android build (Java 1.8) fails modern Gradle JVM-target checks
+  flutter_tts: ^4.2.5
+
+  # Storage & persistence
+  path_provider: ^2.1.2
+  shared_preferences: ^2.2.2
+
+  # UI
+  google_fonts: ^6.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/models/
+    - assets/data/remedies.json

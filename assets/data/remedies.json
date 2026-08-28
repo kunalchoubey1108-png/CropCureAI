@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "updated": "2026-08-29",
+  "classes": {
+    "TOMATO_EARLY_BLIGHT": {
+      "type": "disease",
+      "severity": "moderate",
+      "display_name": {
+        "en": "Tomato Early Blight",
+        "hi": "टमाटर का अगेती झुलसा (अर्ली ब्लाइट)"
+      },
+      "pathogen": {
+        "en": "Fungus — Alternaria solani",
+        "hi": "फफूंद — अल्टरनेरिया सोलानी"
+      },
+      "symptoms": {
+        "en": "Dark brown spots with concentric rings (target-like pattern) on older, lower leaves. Yellowing around spots. Leaves may dry and drop, exposing fruit to sunscald.",
+        "hi": "पुरानी, निचली पत्तियों पर गोल छल्लेदार (निशाने जैसे) गहरे भूरे धब्बे। धब्बों के चारों ओर पीलापन। पत्तियां सूखकर गिर सकती हैं, जिससे फल धूप से झुलस सकते हैं।"
+      },
+      "organic_treatment": {
+        "en": [
+          "Remove and destroy infected lower leaves — do not compost them.",
+          "Spray neem oil (5 ml per litre of water) every 7 days in the evening.",
+          "Apply a Trichoderma viride solution near the root zone.",
+          "Mulch the soil with straw to stop spores splashing from soil onto leaves.",
+          "Water at the base of the plant, not on the leaves."
+        ],
+        "hi": [
+          "संक्रमित निचली पत्तियों को तोड़कर नष्ट कर दें — खाद में न डालें।",
+          "हर 7 दिन में शाम को नीम का तेल (5 मिली प्रति लीटर पानी) छिड़कें।",
+          "जड़ों के पास ट्राइकोडर्मा विरिडी का घोल डालें।",
+          "मिट्टी से पत्तियों पर फफूंद के छींटे रोकने के लिए पुआल की मल्चिंग करें।",
+          "पानी पौधे की जड़ में दें, पत्तियों पर नहीं।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Spray Mancozeb 75% WP at 2.5 g per litre of water; repeat every 10–15 days.",
+          "If spread continues, spray Chlorothalonil 75% WP at 2 g per litre.",
+          "Alternate fungicides between sprays to prevent resistance.",
+          "Do not harvest for at least 7 days after the last spray (pre-harvest interval).",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "मैंकोजेब 75% WP — 2.5 ग्राम प्रति लीटर पानी में घोलकर छिड़कें; हर 10–15 दिन में दोहराएं।",
+          "यदि रोग फैलता रहे तो क्लोरोथालोनिल 75% WP — 2 ग्राम प्रति लीटर छिड़कें।",
+          "प्रतिरोध रोकने के लिए हर छिड़काव में दवा बदल-बदल कर उपयोग करें।",
+          "आख़िरी छिड़काव के बाद कम से कम 7 दिन तक तुड़ाई न करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "prevention": {
+        "en": [
+          "Rotate crops — avoid planting tomato or potato in the same field for 2 years.",
+          "Keep plant spacing wide for good air flow.",
+          "Use disease-free certified seed and resistant varieties where available."
+        ],
+        "hi": [
+          "फसल चक्र अपनाएं — 2 साल तक उसी खेत में टमाटर या आलू न लगाएं।",
+          "हवा के अच्छे प्रवाह के लिए पौधों के बीच पर्याप्त दूरी रखें।",
+          "रोगमुक्त प्रमाणित बीज और उपलब्ध हों तो प्रतिरोधी किस्में उपयोग करें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If more than half the plant is affected or fruit shows dark sunken spots, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "यदि आधे से अधिक पौधे प्रभावित हों या फलों पर गहरे धंसे धब्बे दिखें, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
+      }
+    },
+    "TOMATO_HEALTHY": {
+      "type": "healthy",
+      "severity": "none",
+      "display_name": {
+        "en": "Healthy Tomato Plant",
+        "hi": "स्वस्थ टमाटर का पौधा"
+      },
+      "advice": {
+        "en": [
+          "Your plant looks healthy. Keep up the good work!",
+          "Water regularly at the base — about 2–3 times a week depending on weather.",
+          "Check the underside of leaves weekly for early signs of pests or spots.",
+          "Apply balanced fertilizer (NPK 19:19:19) every 2–3 weeks during growth.",
+          "Remove weeds around the plant to reduce pest and disease pressure."
+        ],
+        "hi": [
+          "आपका पौधा स्वस्थ दिख रहा है। ऐसे ही देखभाल जारी रखें!",
+          "मौसम के अनुसार सप्ताह में 2–3 बार जड़ में नियमित पानी दें।",
+          "हर सप्ताह पत्तियों के नीचे की ओर कीट या धब्बों के शुरुआती लक्षण जांचें।",
+          "बढ़वार के समय हर 2–3 सप्ताह में संतुलित खाद (NPK 19:19:19) दें।",
+          "कीट और रोग का खतरा कम करने के लिए पौधे के आसपास खरपतवार निकालते रहें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "No action needed. Re-scan if you notice new spots, curling, or yellowing.",
+        "hi": "किसी कार्रवाई की ज़रूरत नहीं। नए धब्बे, पत्तियों का मुड़ना या पीलापन दिखे तो दोबारा स्कैन करें।"
+      }
+    },
+    "UNKNOWN_OOD": {
+      "type": "out_of_distribution",
+      "severity": "unknown",
+      "display_name": {
+        "en": "Unrecognized Image",
+        "hi": "पहचान में न आने वाली तस्वीर"
+      },
+      "advice": {
+        "en": [
+          "This image does not look like a crop leaf that the app can diagnose.",
+          "Make sure a single leaf fills most of the frame.",
+          "Take the photo in daylight, avoiding shadows and blur.",
+          "Hold the phone steady about 15–20 cm from the leaf.",
+          "If the problem continues, use the Escalation option to send the photo to an expert."
+        ],
+        "hi": [
+          "यह तस्वीर ऐसी फसल की पत्ती जैसी नहीं लगती जिसकी ऐप जांच कर सके।",
+          "सुनिश्चित करें कि एक पत्ती तस्वीर के अधिकांश हिस्से में साफ दिखे।",
+          "फोटो दिन की रोशनी में लें, छाया और धुंधलेपन से बचें।",
+          "फोन को पत्ती से लगभग 15–20 सेमी दूर स्थिर रखकर फोटो लें।",
+          "समस्या बनी रहे तो 'विशेषज्ञ को भेजें' विकल्प से फोटो विशेषज्ञ के पास भेजें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "For an expert opinion, save this scan to your Crop Passport and share it with your local agriculture officer or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "विशेषज्ञ राय के लिए यह स्कैन अपने क्रॉप पासपोर्ट में सहेजें और अपने स्थानीय कृषि अधिकारी या किसान कॉल सेंटर 1800-180-1551 से साझा करें।"
+      }
+    }
+  }
+}
