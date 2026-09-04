@@ -37,8 +37,6 @@ class Remedy {
 
   String get type => data['type'] as String? ?? 'unknown';
 
-  String get severity => data['severity'] as String? ?? 'unknown';
-
   /// Localized string field, falling back to English.
   String text(String field, String lang) {
     final entry = data[field];

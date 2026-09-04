@@ -16,16 +16,10 @@ enum ScanTrendStatus {
   worsening;
 
   String get label => switch (this) {
-        ScanTrendStatus.improving => 'Improving',
-        ScanTrendStatus.stable => 'Stable',
-        ScanTrendStatus.worsening => 'Worsening',
-      };
-
-  String get labelHi => switch (this) {
-        ScanTrendStatus.improving => 'सुधार',
-        ScanTrendStatus.stable => 'स्थिर',
-        ScanTrendStatus.worsening => 'बिगड़ रहा',
-      };
+    ScanTrendStatus.improving => 'Improving',
+    ScanTrendStatus.stable => 'Stable',
+    ScanTrendStatus.worsening => 'Worsening',
+  };
 }
 
 /// One historical scan in the Crop Health Passport.
@@ -56,24 +50,24 @@ class PassportEntry {
   final ScanTrendStatus status;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'timestamp': timestamp.toIso8601String(),
-        'cropType': cropType,
-        'diseaseName': diseaseName,
-        'severityPercentage': severityPercentage,
-        'imagePath': imagePath,
-        'status': status.name,
-      };
+    'id': id,
+    'timestamp': timestamp.toIso8601String(),
+    'cropType': cropType,
+    'diseaseName': diseaseName,
+    'severityPercentage': severityPercentage,
+    'imagePath': imagePath,
+    'status': status.name,
+  };
 
   factory PassportEntry.fromJson(Map<String, dynamic> json) => PassportEntry(
-        id: json['id'] as String,
-        timestamp: DateTime.parse(json['timestamp'] as String),
-        cropType: json['cropType'] as String,
-        diseaseName: json['diseaseName'] as String,
-        severityPercentage: (json['severityPercentage'] as num).toDouble(),
-        imagePath: json['imagePath'] as String? ?? '',
-        status: ScanTrendStatus.values.byName(json['status'] as String),
-      );
+    id: json['id'] as String,
+    timestamp: DateTime.parse(json['timestamp'] as String),
+    cropType: json['cropType'] as String,
+    diseaseName: json['diseaseName'] as String,
+    severityPercentage: (json['severityPercentage'] as num).toDouble(),
+    imagePath: json['imagePath'] as String? ?? '',
+    status: ScanTrendStatus.values.byName(json['status'] as String),
+  );
 }
 
 /// Local scan history — the farmer's offline "health record" per crop,
@@ -126,8 +120,8 @@ class CropHealthPassportService {
       status = diff <= -stableBandPercent
           ? ScanTrendStatus.improving
           : diff >= stableBandPercent
-              ? ScanTrendStatus.worsening
-              : ScanTrendStatus.stable;
+          ? ScanTrendStatus.worsening
+          : ScanTrendStatus.stable;
     }
 
     final id =
@@ -136,7 +130,7 @@ class CropHealthPassportService {
       id: id,
       timestamp: result.timestamp,
       cropType: cropType,
-      diseaseName: result.className.replaceAll('___', ' ').replaceAll('_', ' '),
+      diseaseName: result.prettyClassName,
       severityPercentage: severityPct,
       imagePath: await _persistImage(result.imagePath, id),
       status: status,
@@ -150,8 +144,7 @@ class CropHealthPassportService {
   }
 
   Future<void> delete(String id) async {
-    final remaining =
-        (await entries()).where((e) => e.id != id).toList();
+    final remaining = (await entries()).where((e) => e.id != id).toList();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
       prefsKey,

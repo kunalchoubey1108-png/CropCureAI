@@ -13,11 +13,13 @@ void main() {
 
   group('AIReliabilityEngine.evaluate', () {
     test('high score on a leaf class -> HIGH_CONFIDENCE / showRemedy', () {
-      final result = engine.evaluate(scores: {
-        'Tomato___Early_blight': 0.82,
-        'Tomato___healthy': 0.10,
-        'Background_Non_Leaf': 0.08,
-      });
+      final result = engine.evaluate(
+        scores: {
+          'Tomato___Early_blight': 0.82,
+          'Tomato___healthy': 0.10,
+          'Background_Non_Leaf': 0.08,
+        },
+      );
       expect(result.reliabilityState, ReliabilityState.highConfidence);
       expect(result.recommendedAction, RecommendedAction.showRemedy);
       expect(result.isOOD, isFalse);
@@ -25,32 +27,37 @@ void main() {
     });
 
     test('exactly 0.70 counts as high confidence (>= threshold)', () {
-      final result = engine.evaluate(scores: {
-        'Tomato___healthy': 0.70,
-        'Tomato___Early_blight': 0.20,
-        'Background_Non_Leaf': 0.10,
-      });
+      final result = engine.evaluate(
+        scores: {
+          'Tomato___healthy': 0.70,
+          'Tomato___Early_blight': 0.20,
+          'Background_Non_Leaf': 0.10,
+        },
+      );
       expect(result.reliabilityState, ReliabilityState.highConfidence);
     });
 
     test('mid score -> LOW_CONFIDENCE_ESCALATE / escalateToExpert', () {
-      final result = engine.evaluate(scores: {
-        'Tomato___Early_blight': 0.55,
-        'Tomato___healthy': 0.30,
-        'Background_Non_Leaf': 0.15,
-      });
+      final result = engine.evaluate(
+        scores: {
+          'Tomato___Early_blight': 0.55,
+          'Tomato___healthy': 0.30,
+          'Background_Non_Leaf': 0.15,
+        },
+      );
       expect(result.reliabilityState, ReliabilityState.lowConfidenceEscalate);
       expect(result.recommendedAction, RecommendedAction.escalateToExpert);
       expect(result.isOOD, isFalse);
     });
 
-    test('background class winning -> OUT_OF_BOUNDS_REJECT even when high',
-        () {
-      final result = engine.evaluate(scores: {
-        'Background_Non_Leaf': 0.90,
-        'Tomato___healthy': 0.06,
-        'Tomato___Early_blight': 0.04,
-      });
+    test('background class winning -> OUT_OF_BOUNDS_REJECT even when high', () {
+      final result = engine.evaluate(
+        scores: {
+          'Background_Non_Leaf': 0.90,
+          'Tomato___healthy': 0.06,
+          'Tomato___Early_blight': 0.04,
+        },
+      );
       expect(result.reliabilityState, ReliabilityState.outOfBoundsReject);
       expect(result.recommendedAction, RecommendedAction.retakePhoto);
       expect(result.isOOD, isTrue);
@@ -58,11 +65,13 @@ void main() {
     });
 
     test('top score below 0.40 -> OUT_OF_BOUNDS_REJECT', () {
-      final result = engine.evaluate(scores: {
-        'Tomato___Early_blight': 0.38,
-        'Tomato___healthy': 0.32,
-        'Background_Non_Leaf': 0.30,
-      });
+      final result = engine.evaluate(
+        scores: {
+          'Tomato___Early_blight': 0.38,
+          'Tomato___healthy': 0.32,
+          'Background_Non_Leaf': 0.30,
+        },
+      );
       expect(result.reliabilityState, ReliabilityState.outOfBoundsReject);
       expect(result.isOOD, isTrue);
     });
@@ -96,8 +105,7 @@ void main() {
   });
 
   group('TFLiteService mock fallback', () {
-    test('falls back to mock mode and returns a valid distribution',
-        () async {
+    test('falls back to mock mode and returns a valid distribution', () async {
       final service = TFLiteService();
       await service.load(); // Placeholder model -> mock mode.
       expect(service.isMockMode, isTrue);
@@ -121,8 +129,7 @@ void main() {
       final file = File('${Directory.systemTemp.path}/fake_leaf2.jpg');
       await file.writeAsBytes(List.generate(128, (i) => 255 - i % 256));
 
-      final result =
-          await engine.diagnoseFile(file.path, tflite: service);
+      final result = await engine.diagnoseFile(file.path, tflite: service);
       expect(result.usedMockModel, isTrue);
       expect(result.confidenceScore, greaterThan(0));
       expect(ReliabilityState.values, contains(result.reliabilityState));

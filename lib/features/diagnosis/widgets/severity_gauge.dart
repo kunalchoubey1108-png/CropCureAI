@@ -16,19 +16,14 @@ class SeverityGauge extends StatelessWidget {
   /// 'en' or 'hi' — controls the status pill label.
   final String lang;
 
-  Color get _color => switch (severity.category) {
-        SeverityCategory.mild => AppColors.severityHealthy,
-        SeverityCategory.moderate => AppColors.severityModerate,
-        SeverityCategory.severe => AppColors.severitySevere,
-      };
+  Color get _color => severity.category.color;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final percent = severity.infectionPercent.clamp(0.0, 100.0);
     final healthyPct = (100 - percent).clamp(0.0, 100.0);
-    final label =
-        lang == 'hi' ? severity.category.labelHi : severity.category.labelEn;
+    final label = severity.category.label(lang);
 
     return Card(
       child: Padding(
@@ -39,10 +34,7 @@ class SeverityGauge extends StatelessWidget {
               children: [
                 Icon(Icons.donut_large, size: 20, color: _color),
                 const SizedBox(width: 8),
-                Text(
-                  'Severity',
-                  style: theme.textTheme.titleSmall,
-                ),
+                Text('Severity', style: theme.textTheme.titleSmall),
                 const Spacer(),
                 // Color-coded status pill.
                 Container(
@@ -250,11 +242,7 @@ class _RadialGaugePainter extends CustomPainter {
       // Needle dot at the current position.
       final angle = pi + sweep;
       final tip = center + Offset(cos(angle) * radius, sin(angle) * radius);
-      canvas.drawCircle(
-        tip,
-        stroke / 2 + 2,
-        Paint()..color = Colors.white,
-      );
+      canvas.drawCircle(tip, stroke / 2 + 2, Paint()..color = Colors.white);
       canvas.drawCircle(tip, stroke / 2 - 2, Paint()..color = color);
     }
   }

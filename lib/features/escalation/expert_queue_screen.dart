@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/models/diagnosis_result.dart';
+import '../../widgets/common.dart';
 import 'escalation_service.dart';
 
 /// Pending scans waiting for internet restoration to sync to KVK officers,
@@ -89,18 +88,18 @@ class _ExpertQueueScreenState extends State<ExpertQueueScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _pending.isEmpty
-                    ? const _EmptyQueue()
-                    : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-                        itemCount: _pending.length,
-                        itemBuilder: (context, i) => _QueuedScanCard(
-                          result: _pending[i],
-                          onRemove: () async {
-                            await _service.remove(_pending[i]);
-                            await _refresh();
-                          },
-                        ),
-                      ),
+                ? const _EmptyQueue()
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+                    itemCount: _pending.length,
+                    itemBuilder: (context, i) => _QueuedScanCard(
+                      result: _pending[i],
+                      onRemove: () async {
+                        await _service.remove(_pending[i]);
+                        await _refresh();
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -122,9 +121,9 @@ class _ExpertQueueScreenState extends State<ExpertQueueScreen> {
                     _syncing
                         ? 'Syncing to KVK portal...'
                         : _online
-                            ? 'Sync ${_pending.length} Scan'
-                                '${_pending.length == 1 ? '' : 's'} Now'
-                            : 'Waiting for network to sync...',
+                        ? 'Sync ${_pending.length} Scan'
+                              '${_pending.length == 1 ? '' : 's'} Now'
+                        : 'Waiting for network to sync...',
                   ),
                 ),
               ),
@@ -146,9 +145,9 @@ class _OfflineStatusBar extends StatelessWidget {
     final color = online ? AppColors.forestGreen : const Color(0xFF37474F);
     final text = online
         ? 'Back Online | $queued Scan${queued == 1 ? '' : 's'} Ready to '
-            'Sync to KVK'
+              'Sync to KVK'
         : 'Core App 100% Offline | $queued Scan${queued == 1 ? '' : 's'} '
-            'Queued for Expert Review when Online';
+              'Queued for Expert Review when Online';
     return Material(
       color: color,
       child: Padding(
@@ -220,8 +219,8 @@ class _QueuedScanCard extends StatelessWidget {
 
   String get _reasonLabel =>
       result.reliabilityState == ReliabilityState.lowConfidenceEscalate
-          ? 'Inconclusive'
-          : 'Severe case';
+      ? 'Inconclusive'
+      : 'Severe case';
 
   @override
   Widget build(BuildContext context) {
@@ -230,30 +229,20 @@ class _QueuedScanCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: SizedBox(
             width: 52,
             height: 52,
-            child: imagePath.isEmpty
-                ? const ColoredBox(
-                    color: Colors.black12,
-                    child: Icon(Icons.image_not_supported),
-                  )
-                : Image.file(
-                    File(imagePath),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stack) => const ColoredBox(
-                      color: Colors.black12,
-                      child: Icon(Icons.eco),
-                    ),
-                  ),
+            child: LeafImage(
+              path: imagePath,
+              icon: imagePath.isEmpty ? Icons.image_not_supported : Icons.eco,
+            ),
           ),
         ),
         title: Text(
-          result.className.replaceAll('___', ' ').replaceAll('_', ' '),
+          result.prettyClassName,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(

@@ -73,29 +73,37 @@ class DiagnosisResult {
   /// Key into `remedies.json`; unknown labels fall back to the OOD advisory.
   String get remedyKey => classToRemedyKey[className] ?? 'UNKNOWN_OOD';
 
+  /// `Tomato___Early_blight` -> `Tomato Early blight`, for display when no
+  /// localized remedy name is available.
+  String get prettyClassName =>
+      className.replaceAll('___', ' ').replaceAll('_', ' ');
+
   Map<String, dynamic> toJson() => {
-        'className': className,
-        'confidenceScore': confidenceScore,
-        'reliabilityState': reliabilityState.name,
-        'isOOD': isOOD,
-        'recommendedAction': recommendedAction.name,
-        'allScores': allScores,
-        'timestamp': timestamp.toIso8601String(),
-        'imagePath': imagePath,
-        'usedMockModel': usedMockModel,
-      };
+    'className': className,
+    'confidenceScore': confidenceScore,
+    'reliabilityState': reliabilityState.name,
+    'isOOD': isOOD,
+    'recommendedAction': recommendedAction.name,
+    'allScores': allScores,
+    'timestamp': timestamp.toIso8601String(),
+    'imagePath': imagePath,
+    'usedMockModel': usedMockModel,
+  };
 
   factory DiagnosisResult.fromJson(Map<String, dynamic> json) {
     return DiagnosisResult(
       className: json['className'] as String,
       confidenceScore: (json['confidenceScore'] as num).toDouble(),
-      reliabilityState:
-          ReliabilityState.values.byName(json['reliabilityState'] as String),
+      reliabilityState: ReliabilityState.values.byName(
+        json['reliabilityState'] as String,
+      ),
       isOOD: json['isOOD'] as bool,
-      recommendedAction:
-          RecommendedAction.values.byName(json['recommendedAction'] as String),
-      allScores: (json['allScores'] as Map<String, dynamic>)
-          .map((k, v) => MapEntry(k, (v as num).toDouble())),
+      recommendedAction: RecommendedAction.values.byName(
+        json['recommendedAction'] as String,
+      ),
+      allScores: (json['allScores'] as Map<String, dynamic>).map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ),
       timestamp: DateTime.parse(json['timestamp'] as String),
       imagePath: json['imagePath'] as String?,
       usedMockModel: json['usedMockModel'] as bool? ?? false,

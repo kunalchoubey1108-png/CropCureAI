@@ -27,8 +27,9 @@ class VoiceAssistantService {
   final FlutterTts _tts = FlutterTts();
 
   /// Observable playback state for UI (speaker FAB, pause button).
-  final ValueNotifier<TtsPlaybackState> state =
-      ValueNotifier(TtsPlaybackState.stopped);
+  final ValueNotifier<TtsPlaybackState> state = ValueNotifier(
+    TtsPlaybackState.stopped,
+  );
 
   bool _configured = false;
   String _lastText = '';
@@ -42,10 +43,6 @@ class VoiceAssistantService {
     await _tts.setPitch(1.0);
     await _tts.setVolume(1.0);
   }
-
-  Future<void> speakHindi(String text) => _speak(text, hindi);
-
-  Future<void> speakEnglish(String text) => _speak(text, english);
 
   /// Speaks in the given language code ('hi' / 'en' shorthands accepted).
   Future<void> speak(String text, String language) {
@@ -98,10 +95,5 @@ class VoiceAssistantService {
       debugPrint('VoiceAssistantService: stop failed ($e)');
     }
     state.value = TtsPlaybackState.stopped;
-  }
-
-  void dispose() {
-    _tts.stop();
-    state.dispose();
   }
 }

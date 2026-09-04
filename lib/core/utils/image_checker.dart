@@ -64,9 +64,7 @@ class ImageChecker {
       );
     }
 
-    final gray = img.grayscale(
-      img.copyResize(decoded, width: _analysisWidth),
-    );
+    final gray = img.grayscale(img.copyResize(decoded, width: _analysisWidth));
     final w = gray.width;
     final h = gray.height;
 

@@ -6,8 +6,9 @@ import 'package:cropcure_ai/main.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('shell renders all three tabs and navigates between them',
-      (tester) async {
+  testWidgets('shell renders all three tabs and navigates between them', (
+    tester,
+  ) async {
     await tester.pumpWidget(const CropCureApp());
     await tester.pump();
 

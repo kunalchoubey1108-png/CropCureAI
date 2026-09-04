@@ -3,10 +3,7 @@ import 'package:image/image.dart' as img;
 
 import 'package:cropcure_ai/features/diagnosis/widgets/severity_calculator.dart';
 
-img.Image _leaf({
-  required double lesionFraction,
-  int size = 112,
-}) {
+img.Image _leaf({required double lesionFraction, int size = 112}) {
   // Left portion lesion-brown, rest healthy green.
   final image = img.Image(width: size, height: size);
   final lesionCols = (size * lesionFraction).round();

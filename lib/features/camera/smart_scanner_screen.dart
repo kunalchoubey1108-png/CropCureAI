@@ -6,17 +6,21 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/image_checker.dart';
+import '../../widgets/common.dart';
 import 'camera_overlay_widget.dart';
 
 /// Live camera scanner with a leaf bounding-box overlay, frame quality
 /// validation, and a gallery fallback for demo conditions where the
 /// room lighting is too poor for a live capture.
 class SmartScannerScreen extends StatefulWidget {
-  const SmartScannerScreen({super.key, this.onImageReady, this.topBarTrailing});
+  const SmartScannerScreen({
+    super.key,
+    required this.onImageReady,
+    this.topBarTrailing,
+  });
 
-  /// Receives the validated image path for the diagnosis step. Until the
-  /// diagnosis feature is wired up, a placeholder dialog stands in.
-  final void Function(BuildContext context, String imagePath)? onImageReady;
+  /// Receives the validated image path for the diagnosis step.
+  final void Function(BuildContext context, String imagePath) onImageReady;
 
   /// Optional action shown at the right end of the top bar (demo panel).
   final Widget? topBarTrailing;
@@ -62,8 +66,9 @@ class _SmartScannerScreenState extends State<SmartScannerScreen>
     try {
       // Timeout guards against a wedged camera stack (or test environments
       // where the platform channel never answers): fall back to gallery.
-      final cameras =
-          await availableCameras().timeout(const Duration(seconds: 5));
+      final cameras = await availableCameras().timeout(
+        const Duration(seconds: 5),
+      );
       if (cameras.isEmpty) {
         setState(() => _cameraError = 'No camera found on this device.');
         return;
@@ -98,7 +103,9 @@ class _SmartScannerScreenState extends State<SmartScannerScreen>
       // Any other failure (missing plugin, emulator quirks): degrade to
       // the gallery fallback instead of crashing the demo.
       if (!mounted) return;
-      setState(() => _cameraError = 'Camera unavailable. Use the gallery instead.');
+      setState(
+        () => _cameraError = 'Camera unavailable. Use the gallery instead.',
+      );
     }
   }
 
@@ -151,29 +158,7 @@ class _SmartScannerScreenState extends State<SmartScannerScreen>
       }
     }
 
-    if (widget.onImageReady != null) {
-      widget.onImageReady!(context, path);
-      return;
-    }
-    // Placeholder hand-off until features/diagnosis exists.
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Frame accepted'),
-        content: Text(
-          'Ready for diagnosis.\n\n'
-          'Brightness: ${quality.brightness.toStringAsFixed(0)} / 255\n'
-          'Sharpness: ${quality.sharpness.toStringAsFixed(0)}\n\n'
-          'Image: $path',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    widget.onImageReady(context, path);
   }
 
   void _showMessage(String message) {
@@ -383,62 +368,36 @@ class _SmartScannerScreenState extends State<SmartScannerScreen>
 
 /// Large circular capture button with a continuously expanding ripple
 /// ring so it reads as "alive" and tappable from across a demo room.
-class _RippleShutterButton extends StatefulWidget {
+class _RippleShutterButton extends StatelessWidget {
   const _RippleShutterButton({required this.enabled, required this.onTap});
 
   final bool enabled;
   final VoidCallback onTap;
 
   @override
-  State<_RippleShutterButton> createState() => _RippleShutterButtonState();
-}
-
-class _RippleShutterButtonState extends State<_RippleShutterButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ripple;
-
-  @override
-  void initState() {
-    super.initState();
-    _ripple = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _ripple.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.enabled ? widget.onTap : null,
+      onTap: enabled ? onTap : null,
       child: SizedBox(
         width: 108,
         height: 108,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (widget.enabled)
-              AnimatedBuilder(
-                animation: _ripple,
-                builder: (context, _) {
-                  final t = _ripple.value;
-                  return Container(
-                    width: 80 + 28 * t,
-                    height: 80 + 28 * t,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.7 * (1 - t)),
-                        width: 3,
-                      ),
+            if (enabled)
+              PulseBuilder(
+                duration: const Duration(milliseconds: 1600),
+                builder: (context, t) => Container(
+                  width: 80 + 28 * t,
+                  height: 80 + 28 * t,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.7 * (1 - t)),
+                      width: 3,
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             Container(
               width: 80,
@@ -446,8 +405,8 @@ class _RippleShutterButtonState extends State<_RippleShutterButton>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 5),
-                color: widget.enabled ? AppColors.emerald : Colors.white24,
-                boxShadow: widget.enabled
+                color: enabled ? AppColors.emerald : Colors.white24,
+                boxShadow: enabled
                     ? [
                         BoxShadow(
                           color: AppColors.emerald.withValues(alpha: 0.55),

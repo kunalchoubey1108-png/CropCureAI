@@ -51,20 +51,20 @@ class WhyThisDiagnosisCard extends StatelessWidget {
   (Color, String, IconData) get _reliabilityBadge =>
       switch (result.reliabilityState) {
         ReliabilityState.highConfidence => (
-            AppColors.severityHealthy,
-            'HIGH CONFIDENCE',
-            Icons.verified,
-          ),
+          AppColors.severityHealthy,
+          'HIGH CONFIDENCE',
+          Icons.verified,
+        ),
         ReliabilityState.lowConfidenceEscalate => (
-            AppColors.severityModerate,
-            'NEEDS EXPERT REVIEW',
-            Icons.help,
-          ),
+          AppColors.severityModerate,
+          'NEEDS EXPERT REVIEW',
+          Icons.help,
+        ),
         ReliabilityState.outOfBoundsReject => (
-            AppColors.severitySevere,
-            'REJECTED (NOT A LEAF)',
-            Icons.block,
-          ),
+          AppColors.severitySevere,
+          'REJECTED (NOT A LEAF)',
+          Icons.block,
+        ),
       };
 
   @override
@@ -82,10 +82,7 @@ class WhyThisDiagnosisCard extends StatelessWidget {
           leading: const Icon(Icons.psychology, size: 28),
           iconColor: theme.colorScheme.primary,
           collapsedIconColor: theme.colorScheme.primary,
-          title: Text(
-            'Why This Diagnosis?',
-            style: theme.textTheme.titleSmall,
-          ),
+          title: Text('Why This Diagnosis?', style: theme.textTheme.titleSmall),
           subtitle: Text(
             'See the AI\'s evidence',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -103,9 +100,9 @@ class WhyThisDiagnosisCard extends StatelessWidget {
               title: 'Image Quality Check',
               detail: qualityOk
                   ? 'Photo passed the blur & lighting check '
-                      '(clarity ${(_clarityScore * 100).round()}%).'
+                        '(clarity ${(_clarityScore * 100).round()}%).'
                   : 'Photo was flagged: '
-                      '${frameQuality!.issues.first.toLowerCase()}',
+                        '${frameQuality!.issues.first.toLowerCase()}',
               meter: _clarityScore,
             ),
             _EvidenceTile(
@@ -136,8 +133,11 @@ class WhyThisDiagnosisCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 4),
                 child: Row(
                   children: [
-                    Icon(Icons.science,
-                        size: 15, color: theme.colorScheme.outline),
+                    Icon(
+                      Icons.science,
+                      size: 15,
+                      color: theme.colorScheme.outline,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(

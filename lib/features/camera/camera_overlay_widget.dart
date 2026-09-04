@@ -25,35 +25,31 @@ class ScannerHint {
 /// pulsing corner brackets, a vertical laser sweep simulating live edge
 /// analysis, and a dynamic status pill.
 class CameraOverlayWidget extends StatefulWidget {
-  const CameraOverlayWidget({
-    super.key,
-    this.boxFraction = 0.72,
-    this.hints = const [
-      ScannerHint(
-        text: 'Hold steady • Center leaf',
-        icon: Icons.center_focus_strong,
-        color: AppColors.severityModerate,
-        pulsing: true,
-      ),
-      ScannerHint(
-        text: 'Good Lighting Detected',
-        icon: Icons.wb_sunny,
-        color: AppColors.severityHealthy,
-      ),
-      ScannerHint(
-        text: 'पत्ती को बीच में रखें',
-        icon: Icons.eco,
-        color: AppColors.severityModerate,
-        pulsing: true,
-      ),
-    ],
-  });
+  const CameraOverlayWidget({super.key});
 
   /// Side of the bounding box as a fraction of the shorter screen edge.
-  final double boxFraction;
+  static const double boxFraction = 0.72;
 
   /// Hint states cycled while scanning.
-  final List<ScannerHint> hints;
+  static const List<ScannerHint> hints = [
+    ScannerHint(
+      text: 'Hold steady • Center leaf',
+      icon: Icons.center_focus_strong,
+      color: AppColors.severityModerate,
+      pulsing: true,
+    ),
+    ScannerHint(
+      text: 'Good Lighting Detected',
+      icon: Icons.wb_sunny,
+      color: AppColors.severityHealthy,
+    ),
+    ScannerHint(
+      text: 'पत्ती को बीच में रखें',
+      icon: Icons.eco,
+      color: AppColors.severityModerate,
+      pulsing: true,
+    ),
+  ];
 
   @override
   State<CameraOverlayWidget> createState() => _CameraOverlayWidgetState();
@@ -77,11 +73,11 @@ class _CameraOverlayWidgetState extends State<CameraOverlayWidget>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    if (widget.hints.length > 1) {
-      _hintTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-        setState(() => _hintIndex = (_hintIndex + 1) % widget.hints.length);
+    _hintTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      setState(() {
+        _hintIndex = (_hintIndex + 1) % CameraOverlayWidget.hints.length;
       });
-    }
+    });
   }
 
   @override
@@ -94,12 +90,12 @@ class _CameraOverlayWidgetState extends State<CameraOverlayWidget>
 
   @override
   Widget build(BuildContext context) {
-    final hint = widget.hints[_hintIndex];
+    final hint = CameraOverlayWidget.hints[_hintIndex];
     return IgnorePointer(
       child: LayoutBuilder(
         builder: (context, constraints) {
           final size = Size(constraints.maxWidth, constraints.maxHeight);
-          final side = size.shortestSide * widget.boxFraction;
+          final side = size.shortestSide * CameraOverlayWidget.boxFraction;
           final box = Rect.fromCenter(
             center: Offset(size.width / 2, size.height / 2 - 24),
             width: side,
@@ -142,13 +138,15 @@ class _CameraOverlayWidgetState extends State<CameraOverlayWidget>
                 left: 24,
                 right: 24,
                 child: FadeTransition(
-                  opacity:
-                      Tween(begin: 0.5, end: 1.0).animate(_pulse),
+                  opacity: Tween(begin: 0.5, end: 1.0).animate(_pulse),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.radar,
-                          color: AppColors.scannerAccent, size: 18),
+                      Icon(
+                        Icons.radar,
+                        color: AppColors.scannerAccent,
+                        size: 18,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'Scanning for leaf...',
@@ -301,8 +299,7 @@ class _ScannerFramePainter extends CustomPainter {
       ..strokeWidth = _bracketStroke
       ..strokeCap = StrokeCap.round;
     final glow = Paint()
-      ..color =
-          AppColors.scannerAccent.withValues(alpha: 0.35 * bracketGlow)
+      ..color = AppColors.scannerAccent.withValues(alpha: 0.35 * bracketGlow)
       ..style = PaintingStyle.stroke
       ..strokeWidth = _bracketStroke + 5
       ..strokeCap = StrokeCap.round

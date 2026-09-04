@@ -2,7 +2,10 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
+
+import '../../../core/constants/app_colors.dart';
 
 /// Infection severity bands based on lesion surface coverage.
 enum SeverityCategory {
@@ -18,16 +21,27 @@ enum SeverityCategory {
 
 extension SeverityCategoryLabels on SeverityCategory {
   String get labelEn => switch (this) {
-        SeverityCategory.mild => 'Mild',
-        SeverityCategory.moderate => 'Moderate',
-        SeverityCategory.severe => 'Severe',
-      };
+    SeverityCategory.mild => 'Mild',
+    SeverityCategory.moderate => 'Moderate',
+    SeverityCategory.severe => 'Severe',
+  };
 
   String get labelHi => switch (this) {
-        SeverityCategory.mild => 'हल्का',
-        SeverityCategory.moderate => 'मध्यम',
-        SeverityCategory.severe => 'गंभीर',
-      };
+    SeverityCategory.mild => 'हल्का',
+    SeverityCategory.moderate => 'मध्यम',
+    SeverityCategory.severe => 'गंभीर',
+  };
+
+  String label(String lang) => lang == 'hi' ? labelHi : labelEn;
+
+  /// The one place severity maps to a color. Callers that only have a raw
+  /// percentage go through [SeverityCalculator.categorize] first rather
+  /// than re-hardcoding the 10 / 30 band edges.
+  Color get color => switch (this) {
+    SeverityCategory.mild => AppColors.severityHealthy,
+    SeverityCategory.moderate => AppColors.severityModerate,
+    SeverityCategory.severe => AppColors.severitySevere,
+  };
 }
 
 /// Result of the pixel-level lesion analysis.

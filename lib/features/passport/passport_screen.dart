@@ -1,9 +1,10 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../widgets/common.dart';
+import '../diagnosis/widgets/severity_calculator.dart';
 import 'passport_service.dart';
 
 /// Historical timeline of leaf scans with a mini recovery-trend chart.
@@ -89,9 +90,8 @@ class _CropHealthPassportScreenState extends State<CropHealthPassportScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   'Scan Timeline',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               for (final entry in entries)
@@ -127,10 +127,7 @@ class _EmptyState extends StatelessWidget {
               color: Theme.of(context).colorScheme.outline,
             ),
             const SizedBox(height: 16),
-            Text(
-              'No scans yet',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('No scans yet', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             const Text(
               'Diagnosed scans are saved here automatically so you can '
@@ -185,14 +182,13 @@ class _RecoveryChartCard extends StatelessWidget {
     }
 
     final firstDay = points.first.timestamp;
-    int dayOf(PassportEntry e) =>
-        e.timestamp.difference(firstDay).inDays + 1;
+    int dayOf(PassportEntry e) => e.timestamp.difference(firstDay).inDays + 1;
     final first = points.first;
     final last = points.last;
-    final recovering =
-        last.severityPercentage < first.severityPercentage - 0.5;
-    final trendColor =
-        recovering ? AppColors.severityHealthy : AppColors.severitySevere;
+    final recovering = last.severityPercentage < first.severityPercentage - 0.5;
+    final trendColor = recovering
+        ? AppColors.severityHealthy
+        : AppColors.severitySevere;
 
     return Card(
       child: Padding(
@@ -261,9 +257,7 @@ class _RecoveryChartCard extends StatelessWidget {
                 size: const Size(double.infinity, 140),
                 painter: _RecoveryChartPainter(
                   days: [for (final p in points) dayOf(p)],
-                  severities: [
-                    for (final p in points) p.severityPercentage,
-                  ],
+                  severities: [for (final p in points) p.severityPercentage],
                   lineColor: theme.colorScheme.primary,
                   labelColor: theme.colorScheme.outline,
                 ),
@@ -277,7 +271,7 @@ class _RecoveryChartCard extends StatelessWidget {
 }
 
 /// Small pulsing status pill ("Status: Improving").
-class _PulsingStatusBadge extends StatefulWidget {
+class _PulsingStatusBadge extends StatelessWidget {
   const _PulsingStatusBadge({
     required this.label,
     required this.color,
@@ -289,39 +283,15 @@ class _PulsingStatusBadge extends StatefulWidget {
   final bool pulsing;
 
   @override
-  State<_PulsingStatusBadge> createState() => _PulsingStatusBadgeState();
-}
-
-class _PulsingStatusBadgeState extends State<_PulsingStatusBadge>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-    if (widget.pulsing) _pulse.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final badge = Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: widget.color,
+        color: color,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
-        widget.label,
+        label,
         style: const TextStyle(
           color: Colors.white,
           fontSize: 12,
@@ -329,12 +299,13 @@ class _PulsingStatusBadgeState extends State<_PulsingStatusBadge>
         ),
       ),
     );
-    if (!widget.pulsing) return badge;
-    return FadeTransition(
-      opacity: Tween(begin: 0.7, end: 1.0).animate(_pulse),
-      child: ScaleTransition(
-        scale: Tween(begin: 0.96, end: 1.03).animate(_pulse),
-        child: badge,
+    if (!pulsing) return badge;
+    return PulseBuilder(
+      duration: const Duration(milliseconds: 1000),
+      reverse: true,
+      builder: (context, t) => Opacity(
+        opacity: 0.7 + 0.3 * t,
+        child: Transform.scale(scale: 0.96 + 0.07 * t, child: badge),
       ),
     );
   }
@@ -347,11 +318,8 @@ class _ComparisonThumb extends StatelessWidget {
   final PassportEntry entry;
   final String caption;
 
-  Color get _severityColor => entry.severityPercentage > 30
-      ? AppColors.severitySevere
-      : entry.severityPercentage >= 10
-          ? AppColors.severityModerate
-          : AppColors.severityHealthy;
+  Color get _severityColor =>
+      SeverityCalculator.categorize(entry.severityPercentage).color;
 
   @override
   Widget build(BuildContext context) {
@@ -362,26 +330,15 @@ class _ComparisonThumb extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           child: AspectRatio(
             aspectRatio: 4 / 3,
-            child: entry.imagePath.isEmpty
-                ? const ColoredBox(
-                    color: Colors.black12,
-                    child: Icon(Icons.eco, size: 32),
-                  )
-                : Image.file(
-                    File(entry.imagePath),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stack) => const ColoredBox(
-                      color: Colors.black12,
-                      child: Icon(Icons.eco, size: 32),
-                    ),
-                  ),
+            child: LeafImage(path: entry.imagePath, iconSize: 32),
           ),
         ),
         const SizedBox(height: 6),
         Text(
           caption,
-          style: theme.textTheme.bodySmall
-              ?.copyWith(fontWeight: FontWeight.w700),
+          style: theme.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
         Container(
           margin: const EdgeInsets.only(top: 2),
@@ -431,9 +388,9 @@ class _RecoveryChartPainter extends CustomPainter {
     final daySpan = max(1, days.last - minDay);
 
     Offset pointAt(int i) => Offset(
-          leftPad + plotW * (days[i] - minDay) / daySpan,
-          topPad + plotH * (1 - severities[i] / maxSeverity),
-        );
+      leftPad + plotW * (days[i] - minDay) / daySpan,
+      topPad + plotH * (1 - severities[i] / maxSeverity),
+    );
 
     // Faint horizontal gridlines.
     final grid = Paint()
@@ -453,10 +410,7 @@ class _RecoveryChartPainter extends CustomPainter {
       ..lineTo(pointAt(days.length - 1).dx, topPad + plotH)
       ..lineTo(pointAt(0).dx, topPad + plotH)
       ..close();
-    canvas.drawPath(
-      fill,
-      Paint()..color = lineColor.withValues(alpha: 0.10),
-    );
+    canvas.drawPath(fill, Paint()..color = lineColor.withValues(alpha: 0.10));
     canvas.drawPath(
       line,
       Paint()
@@ -470,11 +424,7 @@ class _RecoveryChartPainter extends CustomPainter {
     for (var i = 0; i < days.length; i++) {
       final p = pointAt(i);
       final severity = severities[i];
-      final dotColor = severity > 30
-          ? AppColors.severitySevere
-          : severity >= 10
-              ? AppColors.severityModerate
-              : AppColors.severityHealthy;
+      final dotColor = SeverityCalculator.categorize(severity).color;
       canvas.drawCircle(p, 5, Paint()..color = dotColor);
       canvas.drawCircle(
         p,
@@ -537,21 +487,31 @@ class _TimelineTile extends StatelessWidget {
   final VoidCallback onDelete;
 
   Color get _statusColor => switch (entry.status) {
-        ScanTrendStatus.improving => AppColors.severityHealthy,
-        ScanTrendStatus.stable => AppColors.severityUnknown,
-        ScanTrendStatus.worsening => AppColors.severitySevere,
-      };
+    ScanTrendStatus.improving => AppColors.severityHealthy,
+    ScanTrendStatus.stable => AppColors.severityUnknown,
+    ScanTrendStatus.worsening => AppColors.severitySevere,
+  };
 
   IconData get _statusIcon => switch (entry.status) {
-        ScanTrendStatus.improving => Icons.trending_down,
-        ScanTrendStatus.stable => Icons.trending_flat,
-        ScanTrendStatus.worsening => Icons.trending_up,
-      };
+    ScanTrendStatus.improving => Icons.trending_down,
+    ScanTrendStatus.stable => Icons.trending_flat,
+    ScanTrendStatus.worsening => Icons.trending_up,
+  };
 
   static String _formatDate(DateTime t) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final h = t.hour % 12 == 0 ? 12 : t.hour % 12;
     final ampm = t.hour < 12 ? 'am' : 'pm';
@@ -578,27 +538,16 @@ class _TimelineTile extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.only(bottom: 8),
         child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 4,
+          ),
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: SizedBox(
               width: 52,
               height: 52,
-              child: entry.imagePath.isEmpty
-                  ? const ColoredBox(
-                      color: Colors.black12,
-                      child: Icon(Icons.eco),
-                    )
-                  : Image.file(
-                      File(entry.imagePath),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stack) =>
-                          const ColoredBox(
-                        color: Colors.black12,
-                        child: Icon(Icons.eco),
-                      ),
-                    ),
+              child: LeafImage(path: entry.imagePath),
             ),
           ),
           title: Text(

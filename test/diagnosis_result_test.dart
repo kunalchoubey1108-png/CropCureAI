@@ -75,43 +75,47 @@ void main() {
     }
 
     testWidgets('OOD -> red rejection card', (tester) async {
-      final result = engine.evaluate(scores: {
-        'Background_Non_Leaf': 0.9,
-        'Tomato___healthy': 0.1,
-      });
+      final result = engine.evaluate(
+        scores: {'Background_Non_Leaf': 0.9, 'Tomato___healthy': 0.1},
+      );
       await pumpScreen(tester, DiagnosisPipelineOutput(result: result));
       expect(find.text('No Valid Leaf Detected'), findsOneWidget);
       expect(find.text('Scan Again'), findsOneWidget);
     });
 
-    testWidgets('low confidence -> escalation card with queue button',
-        (tester) async {
-      final result = engine.evaluate(scores: {
-        'Tomato___Early_blight': 0.55,
-        'Tomato___healthy': 0.45,
-      });
+    testWidgets('low confidence -> escalation card with queue button', (
+      tester,
+    ) async {
+      final result = engine.evaluate(
+        scores: {'Tomato___Early_blight': 0.55, 'Tomato___healthy': 0.45},
+      );
       await pumpScreen(tester, DiagnosisPipelineOutput(result: result));
       expect(find.text('Inconclusive Scan'), findsOneWidget);
       expect(find.text('Save to Expert Queue'), findsOneWidget);
     });
 
-    testWidgets('high confidence -> remedy view with severity and heatmap',
-        (tester) async {
+    testWidgets('high confidence -> remedy view with severity and heatmap', (
+      tester,
+    ) async {
       // Tall phone viewport so content below the heatmap gets built.
       tester.view.physicalSize = const Size(800, 2200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
       await RemedyService.instance.load();
-      final result = engine.evaluate(scores: {
-        'Tomato___Early_blight': 0.88,
-        'Tomato___healthy': 0.12,
-      });
+      final result = engine.evaluate(
+        scores: {'Tomato___Early_blight': 0.88, 'Tomato___healthy': 0.12},
+      );
       // Severity from a leaf that is ~20% lesion.
       final leaf = img.Image(width: 100, height: 100);
       for (var y = 0; y < 100; y++) {
         for (var x = 0; x < 100; x++) {
-          leaf.setPixelRgb(x, y, x < 20 ? 139 : 60, x < 20 ? 90 : 140,
-              x < 20 ? 30 : 60);
+          leaf.setPixelRgb(
+            x,
+            y,
+            x < 20 ? 139 : 60,
+            x < 20 ? 90 : 140,
+            x < 20 ? 30 : 60,
+          );
         }
       }
       final severity = SeverityCalculator.analyze(leaf);

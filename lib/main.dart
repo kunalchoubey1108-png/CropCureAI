@@ -13,9 +13,7 @@ void main() async {
   // files google_fonts falls back to the platform default typeface.
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Warm up the interpreter (or flip to mock mode) before the first scan.
   // Fire-and-forget: the service is idempotent and re-awaited on use.

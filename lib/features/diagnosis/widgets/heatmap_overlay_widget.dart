@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
+import '../../../widgets/common.dart';
 import 'severity_calculator.dart';
 
 /// Leaf photo with a toggleable Grad-CAM style "AI focus" heatmap.
@@ -16,7 +15,6 @@ class GradCAMHeatmapOverlay extends StatefulWidget {
     required this.imagePath,
     required this.diseaseClass,
     this.severity,
-    this.aspectRatio = 4 / 3,
   });
 
   final String imagePath;
@@ -26,8 +24,6 @@ class GradCAMHeatmapOverlay extends StatefulWidget {
 
   /// Precomputed analysis; when null the widget computes it itself.
   final SeverityResult? severity;
-
-  final double aspectRatio;
 
   @override
   State<GradCAMHeatmapOverlay> createState() => _GradCAMHeatmapOverlayState();
@@ -60,17 +56,14 @@ class _GradCAMHeatmapOverlayState extends State<GradCAMHeatmapOverlay> {
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: AspectRatio(
-                aspectRatio: widget.aspectRatio,
+                aspectRatio: 4 / 3,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.file(
-                      File(widget.imagePath),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stack) => const ColoredBox(
-                        color: Colors.black12,
-                        child: Icon(Icons.broken_image, size: 48),
-                      ),
+                    LeafImage(
+                      path: widget.imagePath,
+                      icon: Icons.broken_image,
+                      iconSize: 48,
                     ),
                     AnimatedOpacity(
                       opacity: _showHeatmap ? 1 : 0,
@@ -79,8 +72,9 @@ class _GradCAMHeatmapOverlayState extends State<GradCAMHeatmapOverlay> {
                       child: severity == null
                           ? const SizedBox.shrink()
                           : CustomPaint(
-                              painter:
-                                  _HeatmapPainter(grid: severity.lesionGrid),
+                              painter: _HeatmapPainter(
+                                grid: severity.lesionGrid,
+                              ),
                             ),
                     ),
                     if (_showHeatmap)
@@ -123,10 +117,8 @@ class _GradCAMHeatmapOverlayState extends State<GradCAMHeatmapOverlay> {
                 decoration: BoxDecoration(
                   color: _showHeatmap
                       ? const Color(0xFFFF6D00)
-                      : Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.10),
+                      : Theme.of(context).colorScheme.primary
+                            .withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(26),
                   boxShadow: _showHeatmap
                       ? [
