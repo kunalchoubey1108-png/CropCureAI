@@ -4,6 +4,7 @@ import 'features/camera/smart_scanner_screen.dart';
 import 'features/diagnosis/screens/diagnosis_result_screen.dart';
 import 'features/escalation/expert_queue_screen.dart';
 import 'features/passport/passport_screen.dart';
+import 'widgets/common.dart';
 import 'widgets/demo_panel_widget.dart';
 
 /// Root shell: Smart Scanner, Health Passport, and Expert Queue tabs,
@@ -42,20 +43,31 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
+      body: Column(
         children: [
-          SmartScannerScreen(
-            onImageReady: _openDiagnosis,
-            topBarTrailing: _demoButton(color: Colors.white),
-          ),
-          KeyedSubtree(
-            key: ValueKey('passport-$_passportEpoch'),
-            child: CropHealthPassportScreen(extraActions: [_demoButton()]),
-          ),
-          KeyedSubtree(
-            key: ValueKey('queue-$_queueEpoch'),
-            child: ExpertQueueScreen(extraActions: [_demoButton()]),
+          // Sits above every tab: if inference is fake, say so before the
+          // user takes a scan, not after they act on the result.
+          const MockModelBanner(),
+          Expanded(
+            child: IndexedStack(
+              index: _index,
+              children: [
+                SmartScannerScreen(
+                  onImageReady: _openDiagnosis,
+                  topBarTrailing: _demoButton(color: Colors.white),
+                ),
+                KeyedSubtree(
+                  key: ValueKey('passport-$_passportEpoch'),
+                  child: CropHealthPassportScreen(
+                    extraActions: [_demoButton()],
+                  ),
+                ),
+                KeyedSubtree(
+                  key: ValueKey('queue-$_queueEpoch'),
+                  child: ExpertQueueScreen(extraActions: [_demoButton()]),
+                ),
+              ],
+            ),
           ),
         ],
       ),

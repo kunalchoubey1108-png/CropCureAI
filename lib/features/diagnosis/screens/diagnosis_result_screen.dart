@@ -11,6 +11,7 @@ import '../../../core/services/voice_assistant_service.dart';
 import '../../../core/utils/image_checker.dart';
 import '../../escalation/escalation_service.dart';
 import '../../escalation/expert_queue_screen.dart';
+import '../../../widgets/common.dart';
 import '../../passport/passport_service.dart';
 import '../widgets/heatmap_overlay_widget.dart';
 import '../widgets/severity_calculator.dart';
@@ -99,8 +100,10 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
     // Storage side effects — never allowed to break the diagnosis UI.
     try {
       if (result.reliabilityState == ReliabilityState.highConfidence) {
-        await CropHealthPassportService.instance
-            .recordScan(result: result, severity: severity);
+        await CropHealthPassportService.instance.recordScan(
+          result: result,
+          severity: severity,
+        );
         if (severity?.category == SeverityCategory.severe) {
           // Severe cases go to the expert queue automatically.
           await ExpertEscalationService.instance.enqueue(result);
@@ -138,24 +141,24 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
           final severityLine = data.severity == null
               ? ''
               : hi
-                  ? 'गंभीरता: ${data.severity!.category.labelHi}, '
-                      '${data.severity!.percentLabel} पत्ती प्रभावित। '
-                  : 'Severity: ${data.severity!.category.labelEn}, '
-                      '${data.severity!.percentLabel} of the leaf affected. ';
+              ? 'गंभीरता: ${data.severity!.category.labelHi}, '
+                    '${data.severity!.percentLabel} पत्ती प्रभावित। '
+              : 'Severity: ${data.severity!.category.labelEn}, '
+                    '${data.severity!.percentLabel} of the leaf affected. ';
           return severityLine + remedy.speechText(_lang);
         }
         return hi ? 'निदान तैयार है।' : 'Diagnosis ready.';
       case ReliabilityState.lowConfidenceEscalate:
         return hi
             ? 'जांच अनिर्णीत रही। पर्याप्त प्रमाण नहीं मिले। यह स्कैन विशेषज्ञ '
-                'समीक्षा के लिए भेजा जा सकता है।'
+                  'समीक्षा के लिए भेजा जा सकता है।'
             : 'The scan was inconclusive. There was not enough evidence. '
-                'You can queue this scan for expert review.';
+                  'You can queue this scan for expert review.';
       case ReliabilityState.outOfBoundsReject:
         return hi
             ? 'कोई मान्य पत्ती नहीं मिली। कृपया कैमरा फसल की पत्ती की ओर करें।'
             : 'No valid leaf detected. Please point the camera at a crop '
-                'leaf.';
+                  'leaf.';
     }
   }
 
@@ -168,9 +171,7 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: SegmentedButton<String>(
-              style: const ButtonStyle(
-                visualDensity: VisualDensity.compact,
-              ),
+              style: const ButtonStyle(visualDensity: VisualDensity.compact),
               segments: const [
                 ButtonSegment(value: 'hi', label: Text('हिंदी')),
                 ButtonSegment(value: 'en', label: Text('EN')),
@@ -235,29 +236,40 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
           onAction: () => Navigator.of(context).pop(),
         );
       case ReliabilityState.lowConfidenceEscalate:
-        final pct =
-            (data.result.confidenceScore * 100).toStringAsFixed(0);
+        final pct = (data.result.confidenceScore * 100).toStringAsFixed(0);
+        final threshold = (AIReliabilityEngine.highConfidenceThreshold * 100)
+            .round();
+        // Two different routes land here, and saying "confidence 100% is
+        // below the 70% threshold" for the second one reads as nonsense.
+        final demotedForQuality =
+            data.result.confidenceScore >=
+            AIReliabilityEngine.highConfidenceThreshold;
         return _AlertBody(
           color: AppColors.severityModerate,
           icon: _queued ? Icons.cloud_done : Icons.cloud_upload,
           badge: _queued ? 'SCAN QUEUED OFFLINE' : 'NEEDS EXPERT REVIEW',
           title: 'Inconclusive Scan',
-          message:
-              'Confidence $pct% — below the '
-              '${(AIReliabilityEngine.highConfidenceThreshold * 100).round()}% '
-              'reliability threshold. Insufficient evidence for a diagnosis.\n'
-              'Queued scans are reviewed by an agriculture expert.',
+          message: demotedForQuality
+              ? 'The model was confident ($pct%), but the photo failed the '
+                    'quality check:\n'
+                    '${data.frameQuality?.issues.first ?? 'image quality too low'}\n'
+                    'A confident answer from a compromised photo is not '
+                    'trustworthy, so this scan goes to an expert instead.'
+              : 'Confidence $pct% — below the $threshold% reliability '
+                    'threshold. Insufficient evidence for a diagnosis.\n'
+                    'Queued scans are reviewed by an agriculture expert.',
           actionIcon: _queued ? Icons.check : Icons.support_agent,
-          actionLabel:
-              _queued ? 'Saved to Expert Queue ✓' : 'Save to Expert Queue',
+          actionLabel: _queued
+              ? 'Saved to Expert Queue ✓'
+              : 'Save to Expert Queue',
           onAction: _queued ? null : () => _saveToExpertQueue(data.result),
           secondaryLabel: _queued ? 'View Expert Queue' : 'Scan Again',
           onSecondary: _queued
               ? () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const ExpertQueueScreen(),
-                    ),
-                  )
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ExpertQueueScreen(),
+                  ),
+                )
               : () => Navigator.of(context).pop(),
         );
       case ReliabilityState.highConfidence:
@@ -273,7 +285,7 @@ class _DiagnosisResultScreenState extends State<DiagnosisResultScreen> {
 /// Floating speaker controls: a large extended FAB with a language badge
 /// and a pulsing ring while audio plays (so judges can see TTS is live),
 /// plus a pause/resume mini button when active.
-class _VoiceControls extends StatefulWidget {
+class _VoiceControls extends StatelessWidget {
   const _VoiceControls({
     required this.voice,
     required this.lang,
@@ -285,33 +297,10 @@ class _VoiceControls extends StatefulWidget {
   final VoidCallback onPlay;
 
   @override
-  State<_VoiceControls> createState() => _VoiceControlsState();
-}
-
-class _VoiceControlsState extends State<_VoiceControls>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1100),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final hindi = widget.lang == 'hi';
+    final hindi = lang == 'hi';
     return ValueListenableBuilder<TtsPlaybackState>(
-      valueListenable: widget.voice.state,
+      valueListenable: voice.state,
       builder: (context, state, _) {
         final playing = state == TtsPlaybackState.playing;
         return Column(
@@ -321,7 +310,7 @@ class _VoiceControlsState extends State<_VoiceControls>
             if (state != TtsPlaybackState.stopped) ...[
               FloatingActionButton.small(
                 heroTag: 'tts_pause',
-                onPressed: playing ? widget.voice.pause : widget.voice.resume,
+                onPressed: playing ? voice.pause : voice.resume,
                 child: Icon(playing ? Icons.pause : Icons.play_arrow),
               ),
               const SizedBox(height: 12),
@@ -332,37 +321,36 @@ class _VoiceControlsState extends State<_VoiceControls>
               children: [
                 // Pulsing sound-wave ring, visible only while speaking.
                 if (playing)
-                  AnimatedBuilder(
-                    animation: _pulse,
-                    builder: (context, _) {
-                      final t = _pulse.value;
-                      return Positioned.fill(
-                        child: Center(
-                          child: Container(
-                            width: 130 + 44 * t,
-                            height: 58 + 30 * t,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(48),
-                              border: Border.all(
-                                color: AppColors.emerald
-                                    .withValues(alpha: 0.6 * (1 - t)),
-                                width: 3,
+                  PulseBuilder(
+                    duration: const Duration(milliseconds: 1100),
+                    builder: (context, t) => Positioned.fill(
+                      child: Center(
+                        child: Container(
+                          width: 130 + 44 * t,
+                          height: 58 + 30 * t,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(48),
+                            border: Border.all(
+                              color: AppColors.emerald.withValues(
+                                alpha: 0.6 * (1 - t),
                               ),
+                              width: 3,
                             ),
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 FloatingActionButton.extended(
                   heroTag: 'tts_main',
-                  backgroundColor:
-                      playing ? AppColors.emerald : AppColors.forestGreen,
+                  backgroundColor: playing
+                      ? AppColors.emerald
+                      : AppColors.forestGreen,
                   foregroundColor: Colors.white,
                   elevation: 6,
                   onPressed: state == TtsPlaybackState.stopped
-                      ? widget.onPlay
-                      : widget.voice.stop,
+                      ? onPlay
+                      : voice.stop,
                   icon: Icon(
                     state == TtsPlaybackState.stopped
                         ? Icons.volume_up
@@ -404,7 +392,7 @@ class _VoiceControlsState extends State<_VoiceControls>
 
 /// High-impact full-screen state card (OOD rejection / expert escalation):
 /// pulsing halo icon, shouty status badge, and large primary action.
-class _AlertBody extends StatefulWidget {
+class _AlertBody extends StatelessWidget {
   const _AlertBody({
     required this.color,
     required this.icon,
@@ -430,32 +418,8 @@ class _AlertBody extends StatefulWidget {
   final VoidCallback? onSecondary;
 
   @override
-  State<_AlertBody> createState() => _AlertBodyState();
-}
-
-class _AlertBodyState extends State<_AlertBody>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = widget.color;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -471,28 +435,26 @@ class _AlertBodyState extends State<_AlertBody>
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Animated icon inside a breathing halo.
-                AnimatedBuilder(
-                  animation: _pulse,
-                  builder: (context, _) {
-                    final t = _pulse.value;
-                    return Container(
-                      width: 116,
-                      height: 116,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: color.withValues(alpha: 0.10 + 0.08 * t),
-                        border: Border.all(
-                          color: color.withValues(alpha: 0.35 + 0.4 * t),
-                          width: 2.5,
-                        ),
+                PulseBuilder(
+                  duration: const Duration(milliseconds: 1000),
+                  reverse: true,
+                  builder: (context, t) => Container(
+                    width: 116,
+                    height: 116,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color.withValues(alpha: 0.10 + 0.08 * t),
+                      border: Border.all(
+                        color: color.withValues(alpha: 0.35 + 0.4 * t),
+                        width: 2.5,
                       ),
-                      child: Transform.scale(
-                        scale: 0.94 + 0.09 * t,
-                        child: Icon(widget.icon, size: 58, color: color),
-                      ),
-                    );
-                  },
+                    ),
+                    child: Transform.scale(
+                      scale: 0.94 + 0.09 * t,
+                      child: Icon(icon, size: 58, color: color),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 18),
                 // Status badge banner.
@@ -506,7 +468,7 @@ class _AlertBodyState extends State<_AlertBody>
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    widget.badge,
+                    badge,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12.5,
@@ -517,29 +479,29 @@ class _AlertBodyState extends State<_AlertBody>
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  widget.title,
+                  title,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(color: color),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  widget.message,
+                  message,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 26),
                 FilledButton.icon(
-                  onPressed: widget.onAction,
+                  onPressed: onAction,
                   style: FilledButton.styleFrom(backgroundColor: color),
-                  icon: Icon(widget.actionIcon),
-                  label: Text(widget.actionLabel),
+                  icon: Icon(actionIcon),
+                  label: Text(actionLabel),
                 ),
-                if (widget.secondaryLabel != null) ...[
+                if (secondaryLabel != null) ...[
                   const SizedBox(height: 10),
                   TextButton(
-                    onPressed: widget.onSecondary,
+                    onPressed: onSecondary,
                     child: Text(
-                      widget.secondaryLabel!,
+                      secondaryLabel!,
                       style: TextStyle(
                         color: color,
                         fontWeight: FontWeight.w700,
@@ -683,7 +645,9 @@ class _HighConfidenceBody extends StatelessWidget {
           if (remedy.text('escalation_advice', lang).isNotEmpty)
             _RemedySection(
               icon: Icons.support_agent,
-              title: lang == 'hi' ? 'विशेषज्ञ से कब संपर्क करें' : 'When to Escalate',
+              title: lang == 'hi'
+                  ? 'विशेषज्ञ से कब संपर्क करें'
+                  : 'When to Escalate',
               body: remedy.text('escalation_advice', lang),
             ),
         ],
@@ -761,10 +725,7 @@ class _RemedySection extends StatelessWidget {
                       ),
                     ),
                     Expanded(
-                      child: Text(
-                        steps[i],
-                        style: theme.textTheme.bodyMedium,
-                      ),
+                      child: Text(steps[i], style: theme.textTheme.bodyMedium),
                     ),
                   ],
                 ),

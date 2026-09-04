@@ -49,18 +49,22 @@ class TFLiteService {
 
   Interpreter? _interpreter;
   List<String> _labels = defaultLabels;
-  bool _loadAttempted = false;
+  Future<void>? _loading;
 
   /// True when inference is running on canned mock logic, not the model.
+  /// Only meaningful once [load] has completed.
   bool get isMockMode => _interpreter == null;
 
-  List<String> get labels => List.unmodifiable(_labels);
-
   /// Idempotent; safe to call eagerly at app start and again before use.
-  Future<void> load() async {
-    if (_loadAttempted) return;
-    _loadAttempted = true;
+  ///
+  /// Concurrent callers share one in-flight future. Returning early on a
+  /// "load already started" flag instead would let the second caller run
+  /// while the interpreter is still null, so a scan taken moments after
+  /// launch would silently fall back to mock scores with a perfectly good
+  /// model on disk.
+  Future<void> load() => _loading ??= _load();
 
+  Future<void> _load() async {
     try {
       final raw = await rootBundle.loadString(labelsAsset);
       final parsed = raw
@@ -96,22 +100,27 @@ class TFLiteService {
     final bytes = await File(path).readAsBytes();
     final input = await compute(_preprocess, bytes);
 
-    final output =
-        List<double>.filled(_labels.length, 0).reshape([1, _labels.length]);
+    final output = List<double>.filled(
+      _labels.length,
+      0,
+    ).reshape([1, _labels.length]);
     _interpreter!.run(input.reshape([1, inputSize, inputSize, 3]), output);
 
     final raw = (output[0] as List).cast<double>();
     final probs = _ensureSoftmax(raw);
-    return InferenceResult(
-      scores: {for (var i = 0; i < _labels.length; i++) _labels[i]: probs[i]},
-      isMock: false,
-    );
+    final scores = {
+      for (var i = 0; i < _labels.length; i++) _labels[i]: probs[i],
+    };
+    // Keep this: "everything is blight" turned out to be a stale build
+    // running in mock mode, and one log line settles that question.
+    debugPrint('TFLiteService: scores=$scores');
+    return InferenceResult(scores: scores, isMock: false);
   }
 
   void dispose() {
     _interpreter?.close();
     _interpreter = null;
-    _loadAttempted = false;
+    _loading = null;
   }
 
   /// Decode -> center-crop square -> 224x224 -> normalized float32 RGB.
