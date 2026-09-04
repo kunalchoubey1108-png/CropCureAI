@@ -12,20 +12,21 @@ import 'package:cropcure_ai/features/passport/passport_service.dart';
 
 const engine = AIReliabilityEngine();
 
-DiagnosisResult _blightResult({double confidence = 0.85}) =>
-    engine.evaluate(scores: {
-      'Tomato___Early_blight': confidence,
-      'Tomato___healthy': (1 - confidence) / 2,
-      'Background_Non_Leaf': (1 - confidence) / 2,
-    });
+DiagnosisResult _blightResult({double confidence = 0.85}) => engine.evaluate(
+  scores: {
+    'Tomato___Early_blight': confidence,
+    'Tomato___healthy': (1 - confidence) / 2,
+    'Background_Non_Leaf': (1 - confidence) / 2,
+  },
+);
 
 SeverityResult _severity(double percent) => SeverityResult(
-      infectionPercent: percent,
-      category: SeverityCalculator.categorize(percent),
-      leafCoverage: 0.8,
-      lesionGrid: const [],
-      isReliable: true,
-    );
+  infectionPercent: percent,
+  category: SeverityCalculator.categorize(percent),
+  leafCoverage: 0.8,
+  lesionGrid: const [],
+  isReliable: true,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,42 +38,48 @@ void main() {
   group('CropHealthPassportService', () {
     final service = CropHealthPassportService.instance;
 
-    test('trend status: first Stable, drop Improving, rise Worsening',
-        () async {
-      final e1 = await service.recordScan(
-        result: _blightResult(),
-        severity: _severity(28),
-      );
-      expect(e1.status, ScanTrendStatus.stable);
-      expect(e1.cropType, 'Tomato');
-      expect(e1.diseaseName, 'Tomato Early blight');
-      expect(e1.severityPercentage, 28);
+    test(
+      'trend status: first Stable, drop Improving, rise Worsening',
+      () async {
+        final e1 = await service.recordScan(
+          result: _blightResult(),
+          severity: _severity(28),
+        );
+        expect(e1.status, ScanTrendStatus.stable);
+        expect(e1.cropType, 'Tomato');
+        expect(e1.diseaseName, 'Tomato Early blight');
+        expect(e1.severityPercentage, 28);
 
-      final e2 = await service.recordScan(
-        result: _blightResult(),
-        severity: _severity(12),
-      );
-      expect(e2.status, ScanTrendStatus.improving);
+        final e2 = await service.recordScan(
+          result: _blightResult(),
+          severity: _severity(12),
+        );
+        expect(e2.status, ScanTrendStatus.improving);
 
-      final e3 = await service.recordScan(
-        result: _blightResult(),
-        severity: _severity(35),
-      );
-      expect(e3.status, ScanTrendStatus.worsening);
+        final e3 = await service.recordScan(
+          result: _blightResult(),
+          severity: _severity(35),
+        );
+        expect(e3.status, ScanTrendStatus.worsening);
 
-      // Small change stays Stable (±3% band).
-      final e4 = await service.recordScan(
-        result: _blightResult(),
-        severity: _severity(36),
-      );
-      expect(e4.status, ScanTrendStatus.stable);
-    });
+        // Small change stays Stable (±3% band).
+        final e4 = await service.recordScan(
+          result: _blightResult(),
+          severity: _severity(36),
+        );
+        expect(e4.status, ScanTrendStatus.stable);
+      },
+    );
 
     test('entries persist newest-first and delete works', () async {
       await service.recordScan(
-          result: _blightResult(), severity: _severity(28));
+        result: _blightResult(),
+        severity: _severity(28),
+      );
       await service.recordScan(
-          result: _blightResult(), severity: _severity(12));
+        result: _blightResult(),
+        severity: _severity(12),
+      );
 
       final entries = await service.entries();
       expect(entries.length, 2);
@@ -111,8 +118,9 @@ void main() {
   });
 
   group('Screens', () {
-    testWidgets('ExpertQueueScreen shows offline bar with queue count',
-        (tester) async {
+    testWidgets('ExpertQueueScreen shows offline bar with queue count', (
+      tester,
+    ) async {
       final service = ExpertEscalationService.instance;
       await service.enqueue(_blightResult(confidence: 0.55));
       await service.enqueue(_blightResult(confidence: 0.62));
@@ -137,8 +145,9 @@ void main() {
     });
 
     testWidgets('ExpertQueueScreen online -> sync enabled', (tester) async {
-      await ExpertEscalationService.instance
-          .enqueue(_blightResult(confidence: 0.55));
+      await ExpertEscalationService.instance.enqueue(
+        _blightResult(confidence: 0.55),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -152,17 +161,22 @@ void main() {
       expect(find.text('Sync 1 Scan Now'), findsOneWidget);
     });
 
-    testWidgets('PassportScreen shows timeline and recovery trend',
-        (tester) async {
+    testWidgets('PassportScreen shows timeline and recovery trend', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
       final service = CropHealthPassportService.instance;
       await service.recordScan(
-          result: _blightResult(), severity: _severity(28));
+        result: _blightResult(),
+        severity: _severity(28),
+      );
       await service.recordScan(
-          result: _blightResult(), severity: _severity(12));
+        result: _blightResult(),
+        severity: _severity(12),
+      );
 
       await tester.pumpWidget(
         const MaterialApp(home: CropHealthPassportScreen()),

@@ -23,6 +23,20 @@ class ExpertEscalationService {
   /// Observable queue size for badges and the offline status bar.
   final ValueNotifier<int> queueCount = ValueNotifier(0);
 
+  /// Identity of a queued scan.
+  ///
+  /// Timestamp + image alone is not enough: two distinct scans can land on
+  /// the same `DateTime.now()` (Windows clock granularity is ~1–15ms) and
+  /// presenter-panel presets carry no `imagePath`, so a real second scan
+  /// would be silently swallowed as a duplicate. Including the verdict
+  /// keeps re-tapping "Save to Expert Queue" idempotent — that re-queues
+  /// the identical object — while letting genuinely different scans coexist.
+  static bool _sameScan(DiagnosisResult a, DiagnosisResult b) =>
+      a.timestamp == b.timestamp &&
+      a.imagePath == b.imagePath &&
+      a.className == b.className &&
+      a.confidenceScore == b.confidenceScore;
+
   Future<List<DiagnosisResult>> pending() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList(prefsKey) ?? const [];
@@ -44,11 +58,7 @@ class ExpertEscalationService {
   /// ignored so re-tapping the save button is safe.
   Future<void> enqueue(DiagnosisResult result) async {
     final existing = await pending();
-    final duplicate = existing.any(
-      (r) =>
-          r.timestamp == result.timestamp && r.imagePath == result.imagePath,
-    );
-    if (duplicate) return;
+    if (existing.any((r) => _sameScan(r, result))) return;
 
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList(prefsKey) ?? [];
@@ -59,10 +69,7 @@ class ExpertEscalationService {
 
   Future<void> remove(DiagnosisResult result) async {
     final existing = await pending();
-    existing.removeWhere(
-      (r) =>
-          r.timestamp == result.timestamp && r.imagePath == result.imagePath,
-    );
+    existing.removeWhere((r) => _sameScan(r, result));
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
       prefsKey,
