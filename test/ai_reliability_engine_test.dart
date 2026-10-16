@@ -115,7 +115,7 @@ void main() {
 
       final result = await service.classifyImage(file.path);
       expect(result.isMock, isTrue);
-      expect(result.scores.length, 3);
+      expect(result.scores.length, TFLiteService.defaultLabels.length);
       final sum = result.scores.values.fold(0.0, (a, b) => a + b);
       expect(sum, closeTo(1.0, 0.001));
 

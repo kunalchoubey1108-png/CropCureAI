@@ -1,8 +1,12 @@
-"""Evaluate the shipped assets/models/model.tflite on the held-out split.
+"""Evaluate the shipped assets/models/model.tflite on the true holdout.
 
-Runs the exact artifact the Flutter app loads (not the Keras model) through
-the same validation split train_export.py held back, and prints a per-class
+Runs the exact artifact the Flutter app loads (not the Keras model) over
+ml/data_test -- PlantVillage's own 20% test parquet plus a disjoint slice of
+non-leaf photos, none of it ever trained on -- and prints a per-class
 confusion matrix plus the confidence distribution.
+
+Done-when bar from docs/spec-11-class-classifier.md: no class below 70%
+recall. The script exits non-zero if that fails.
 
 The confidence histogram matters as much as accuracy: AIReliabilityEngine
 routes on thresholds (>=0.70 trusted, <0.40 rejected as out-of-distribution),
@@ -18,35 +22,26 @@ from pathlib import Path
 import numpy as np
 import tensorflow as tf
 
-from train_export import (
-    CLASS_NAMES,
-    DATA_DIR,
-    IMG_SIZE,
-    MODEL_OUT,
-    SEED,
-    VAL_SPLIT,
-)
+from prepare_data import TEST_DIR
+from train_export import CLASS_NAMES, IMG_SIZE, MODEL_OUT
 
 # Mirrors AIReliabilityEngine's constants in Dart.
 HIGH_CONFIDENCE_THRESHOLD = 0.70
 OOD_SCORE_FLOOR = 0.40
+MIN_RECALL = 0.70
 
 
 def main() -> None:
+    if not TEST_DIR.exists():
+        raise SystemExit("ml/data_test missing -- run prepare_data.py first")
     val = tf.keras.utils.image_dataset_from_directory(
-        directory=DATA_DIR,
+        directory=TEST_DIR,
         labels="inferred",
         label_mode="int",
         class_names=CLASS_NAMES,
         image_size=(IMG_SIZE, IMG_SIZE),
         batch_size=1,
-        seed=SEED,
-        validation_split=VAL_SPLIT,
-        subset="validation",
-        # Leave shuffling on: Keras shuffles the file list with `seed`
-        # *before* carving off the split, so this is what reproduces the
-        # exact held-out set train_export.py used. Passing shuffle=False
-        # instead slices the last 20% in directory order -- i.e. one class.
+        shuffle=False,
     )
 
     interpreter = tf.lite.Interpreter(model_path=str(MODEL_OUT))
@@ -72,14 +67,17 @@ def main() -> None:
     print(f"\nHeld-out images: {total}")
     print(f"Overall accuracy: {correct / total:.2%}\n")
 
+    # Columns are class indices; 11 full names do not fit across a terminal.
     width = max(len(c) for c in CLASS_NAMES)
-    print(f"{'actual \\ predicted':<{width + 2}}" + "".join(
-        f"{c[:14]:>16}" for c in CLASS_NAMES
+    print(f"{'actual \\ predicted':<{width + 6}}" + "".join(
+        f"{j:>6}" for j in range(n)
     ))
+    recalls = []
     for i, name in enumerate(CLASS_NAMES):
-        row = "".join(f"{confusion[i, j]:>16}" for j in range(n))
+        row = "".join(f"{confusion[i, j]:>6}" for j in range(n))
         recall = confusion[i, i] / max(confusion[i].sum(), 1)
-        print(f"{name:<{width + 2}}{row}   recall {recall:.2%}")
+        recalls.append(recall)
+        print(f"{i:>2} {name:<{width + 3}}{row}   recall {recall:.2%}")
 
     scores = np.array(top_scores)
     print("\n=== Top-class confidence vs. AIReliabilityEngine thresholds ===")
@@ -90,6 +88,13 @@ def main() -> None:
     print(f">= 0.70 (trusted outright)        : {trusted:.2%}")
     print(f"0.40-0.70 (escalated to expert)   : {1 - trusted - rejected:.2%}")
     print(f"<  0.40 (rejected as not-a-leaf)  : {rejected:.2%}")
+
+    worst = min(range(n), key=lambda i: recalls[i])
+    verdict = "PASS" if recalls[worst] >= MIN_RECALL else "FAIL"
+    print(f"\n{verdict}: lowest recall {recalls[worst]:.2%} "
+          f"({CLASS_NAMES[worst]}), bar {MIN_RECALL:.0%}")
+    if verdict == "FAIL":
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

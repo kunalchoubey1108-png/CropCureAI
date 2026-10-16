@@ -52,3 +52,5 @@ ml/.venv/
 ml/.cache/
 ml/.export/
 ml/data/
+ml/data_test/
+ml/eval_backgrounds/

@@ -22,6 +22,30 @@ class WhyThisDiagnosisCard extends StatelessWidget {
 
   /// Pathogen-specific rationale, keyed by raw model label.
   static const Map<String, String> _pathogenRationale = {
+    'Tomato___Bacterial_spot':
+        'Many small, dark, greasy-looking spots, some with yellow halos, '
+        'matched the pattern of Xanthomonas bacterial spot.',
+    'Tomato___Late_blight':
+        'Large, irregular, water-soaked brown patches spreading from the leaf '
+        'edge matched the signature of Phytophthora infestans.',
+    'Tomato___Leaf_Mold':
+        'Diffuse pale-yellow patches on the upper surface matched leaf mold '
+        '(Passalora fulva), which grows olive-green mold underneath.',
+    'Tomato___Septoria_leaf_spot':
+        'Numerous small round spots with dark borders and gray-tan centers '
+        'matched the signature of Septoria lycopersici.',
+    'Tomato___Spider_mites':
+        'Fine yellow-white stippling and bronzing across the leaf matched '
+        'feeding damage from two-spotted spider mites.',
+    'Tomato___Target_Spot':
+        'Brown lesions with faint concentric rings and lighter centers '
+        'matched the pattern of Corynespora target spot.',
+    'Tomato___Yellow_Leaf_Curl_Virus':
+        'Upward-curled, cupped leaves with yellowing margins matched the '
+        'symptoms of whitefly-spread yellow leaf curl virus.',
+    'Tomato___Mosaic_virus':
+        'A mottled light-and-dark green mosaic with distorted leaf shape '
+        'matched the symptoms of tomato mosaic virus.',
     'Tomato___Early_blight':
         'Dark brown spots with concentric rings (a "target board" pattern) '
         'and yellow halos matched the signature of Alternaria solani on '

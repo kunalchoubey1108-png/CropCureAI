@@ -5,8 +5,8 @@ they proved nothing about the model. These assets let each preset run the
 real pipeline instead, and this script verifies each one actually lands in
 the reliability state the preset claims before writing it.
 
-Images are drawn from the validation split only (via the same seed/split
-train_export.py used), so nothing here was trained on.
+Images are drawn from ml/data_test -- PlantVillage's own test split, never
+trained on.
 
   A  non-leaf object   -> Background wins        -> OUT_OF_BOUNDS_REJECT
   B  blurred leaf      -> sharpness < 45         -> demoted, LOW_CONFIDENCE
@@ -23,7 +23,8 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image, ImageFilter
 
-from train_export import CLASS_NAMES, DATA_DIR, IMG_SIZE, MODEL_OUT, SEED, VAL_SPLIT
+from prepare_data import TEST_DIR
+from train_export import CLASS_NAMES, MODEL_OUT
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "assets" / "demo"
 
@@ -45,19 +46,12 @@ def sharpness(im: Image.Image) -> float:
     return float(lap.var())
 
 
+BLIGHT = CLASS_NAMES.index("Tomato___Early_blight")
+BACKGROUND = CLASS_NAMES.index("Background_Non_Leaf")
+
+
 def held_out_paths() -> list[str]:
-    ds = tf.keras.utils.image_dataset_from_directory(
-        directory=DATA_DIR,
-        labels="inferred",
-        label_mode="int",
-        class_names=CLASS_NAMES,
-        image_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=1,
-        seed=SEED,
-        validation_split=VAL_SPLIT,
-        subset="validation",
-    )
-    return list(ds.file_paths)
+    return sorted(str(p) for p in TEST_DIR.glob("*/*.jpg"))
 
 
 def main() -> None:
@@ -86,7 +80,7 @@ def main() -> None:
     for p in by_class["Tomato___Early_blight"]:
         with Image.open(p) as im:
             probs, sh = predict(im.copy()), sharpness(im.copy())
-        if int(np.argmax(probs)) == 0 and probs[0] >= 0.90 and sh >= MIN_SHARPNESS:
+        if int(np.argmax(probs)) == BLIGHT and probs[BLIGHT] >= 0.90 and sh >= MIN_SHARPNESS:
             chosen_c = (p, probs, sh)
             break
     assert chosen_c, "no held-out blight leaf met the HIGH_CONFIDENCE bar"
@@ -111,7 +105,7 @@ def main() -> None:
     for p in by_class["Background_Non_Leaf"]:
         with Image.open(p) as im:
             probs = predict(im.copy())
-        if int(np.argmax(probs)) == 2:
+        if int(np.argmax(probs)) == BACKGROUND:
             chosen_a = (p, probs)
             break
     assert chosen_a, "no held-out background image was rejected"
@@ -125,12 +119,12 @@ def main() -> None:
     print(f"\nHeld-out pool: {len(val)} images\n")
     pa, pc = chosen_a[1], chosen_c[1]
     pb = chosen_b[1]
-    print(f"A preset_a_object.jpg      background={pa[2]:.3f} "
+    print(f"A preset_a_object.jpg      background={pa[BACKGROUND]:.3f} "
           f"-> top={CLASS_NAMES[int(np.argmax(pa))]} -> OUT_OF_BOUNDS_REJECT")
-    print(f"B preset_b_blurry_leaf.jpg blight={pb[0]:.3f} "
+    print(f"B preset_b_blurry_leaf.jpg blight={pb[BLIGHT]:.3f} "
           f"sharpness={chosen_b[2]:.1f} (< {MIN_SHARPNESS}) -> demoted to "
           f"LOW_CONFIDENCE_ESCALATE")
-    print(f"C preset_c_blight_leaf.jpg blight={pc[0]:.3f} "
+    print(f"C preset_c_blight_leaf.jpg blight={pc[BLIGHT]:.3f} "
           f"sharpness={chosen_c[2]:.1f} -> HIGH_CONFIDENCE")
 
 

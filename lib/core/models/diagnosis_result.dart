@@ -64,8 +64,19 @@ class DiagnosisResult {
   final bool usedMockModel;
 
   /// Maps raw model labels to the keys used in `assets/data/remedies.json`.
+  /// Every label the model can emit must be here — an unmapped label
+  /// silently degrades to the OOD advisory. test/label_coverage_test.dart
+  /// enforces that against labels.txt and remedies.json.
   static const Map<String, String> classToRemedyKey = {
+    'Tomato___Bacterial_spot': 'TOMATO_BACTERIAL_SPOT',
     'Tomato___Early_blight': 'TOMATO_EARLY_BLIGHT',
+    'Tomato___Late_blight': 'TOMATO_LATE_BLIGHT',
+    'Tomato___Leaf_Mold': 'TOMATO_LEAF_MOLD',
+    'Tomato___Septoria_leaf_spot': 'TOMATO_SEPTORIA_LEAF_SPOT',
+    'Tomato___Spider_mites': 'TOMATO_SPIDER_MITES',
+    'Tomato___Target_Spot': 'TOMATO_TARGET_SPOT',
+    'Tomato___Yellow_Leaf_Curl_Virus': 'TOMATO_YELLOW_LEAF_CURL_VIRUS',
+    'Tomato___Mosaic_virus': 'TOMATO_MOSAIC_VIRUS',
     'Tomato___healthy': 'TOMATO_HEALTHY',
     'Background_Non_Leaf': 'UNKNOWN_OOD',
   };

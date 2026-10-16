@@ -5,7 +5,7 @@ aspect, grayscale, then variance of the 4-neighbour Laplacian over interior
 pixels.
 
 Prints the sharpness distribution for clean leaves versus the blurred leaves
-that robustness_probe.py showed flipping to Early_blight, so the threshold
+that robustness_probe.py showed flipping to a disease, so the threshold
 can be set to reject exactly the blur that causes misdiagnosis.
 
 Usage: ml/.venv/Scripts/python.exe ml/sharpness_probe.py
@@ -19,6 +19,11 @@ from pathlib import Path
 import numpy as np
 import tensorflow as tf
 from PIL import Image, ImageFilter
+
+from train_export import CLASS_NAMES
+
+HEALTHY = CLASS_NAMES.index("Tomato___healthy")
+BACKGROUND = CLASS_NAMES.index("Background_Non_Leaf")
 
 ML_DIR = Path(__file__).resolve().parent
 DATA = ML_DIR / "data"
@@ -58,10 +63,12 @@ def main() -> None:
     interp.allocate_tensors()
     inp, out = interp.get_input_details()[0], interp.get_output_details()[0]
 
-    def blight_prob(im) -> float:
+    def disease_prob(im) -> float:
+        """Total probability on disease classes, i.e. not healthy/background."""
         interp.set_tensor(inp["index"], to_tensor(im))
         interp.invoke()
-        return float(interp.get_tensor(out["index"])[0][0])
+        probs = interp.get_tensor(out["index"])[0]
+        return float(1 - probs[HEALTHY] - probs[BACKGROUND])
 
     rng = random.Random(SEED)
     healthy = rng.sample(sorted((DATA / "Tomato___healthy").glob("*.jpg")), N)
@@ -74,7 +81,7 @@ def main() -> None:
             b = im.copy().filter(ImageFilter.GaussianBlur(rng.uniform(1.2, 2.5)))
             s = sharpness(b)
             blur_sharp.append(s)
-            if blight_prob(b) > 0.5:
+            if disease_prob(b) > 0.5:
                 flips += 1
                 blur_flip_sharp.append(s)
 

@@ -1,4 +1,4 @@
-"""Train CropCureAI's 3-class leaf classifier and export assets/models/model.tflite.
+"""Train CropCureAI's 11-class leaf classifier and export assets/models/model.tflite.
 
 Transfer-learns a MobileNetV2 backbone (ImageNet weights) on the dataset
 built by prepare_data.py, then writes a float32 TFLite model that drops
@@ -7,7 +7,7 @@ straight into the Flutter app with no changes to TFLiteService.
 Contract with lib/core/services/tflite_service.dart -- do not break these:
   * input  : float32 [1, 224, 224, 3], values in [0, 1]
              (the app normalizes with inputMean=0, inputStd=255)
-  * output : float32 [1, 3], softmax probabilities
+  * output : float32 [1, 11], softmax probabilities
   * class order must match assets/models/labels.txt line-for-line
 
 MobileNetV2 wants [-1, 1] inputs, so the [0,1] -> [-1,1] rescale is baked
@@ -24,26 +24,30 @@ from pathlib import Path
 import numpy as np
 import tensorflow as tf
 
+from prepare_data import BACKGROUND_CLASS, LEAF_CLASSES
+
 ML_DIR = Path(__file__).resolve().parent
 DATA_DIR = ML_DIR / "data"
 REPO_DIR = ML_DIR.parent
 MODEL_OUT = REPO_DIR / "assets" / "models" / "model.tflite"
 LABELS_OUT = REPO_DIR / "assets" / "models" / "labels.txt"
 
-# Order is load-bearing: index i here must equal line i of labels.txt.
-CLASS_NAMES = [
-    "Tomato___Early_blight",
-    "Tomato___healthy",
-    "Background_Non_Leaf",
-]
+# Order is load-bearing: index i here must equal line i of labels.txt, and
+# lib/core/services/tflite_service.dart defaultLabels. Derived from
+# prepare_data so the directory names and the head can never disagree.
+CLASS_NAMES = [*LEAF_CLASSES.values(), BACKGROUND_CLASS]
 
 IMG_SIZE = 224
 BATCH_SIZE = 32
 VAL_SPLIT = 0.2
 SEED = 1337
-FROZEN_EPOCHS = 6
-FINETUNE_EPOCHS = 4
-FINETUNE_LAYERS = 30  # last N backbone layers unfrozen in stage 2
+FROZEN_EPOCHS = 4
+# 11 look-alike diseases plus leaves on real backgrounds need far more
+# fine-tuning than the old 3-class set: at 4 epochs / 30 layers / 1e-5 the
+# model ended underfit (train 74% < val 75%) and failed both spec bars.
+FINETUNE_EPOCHS = 14
+FINETUNE_LAYERS = 60  # last N backbone layers unfrozen in stage 2
+FINETUNE_LR = 1e-4
 
 
 def build_datasets() -> tuple[tf.data.Dataset, tf.data.Dataset]:
@@ -126,11 +130,23 @@ def train(model: tf.keras.Model, backbone: tf.keras.Model, train_ds, val_ds) -> 
             layer.trainable = False
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(1e-5),
+        optimizer=tf.keras.optimizers.Adam(FINETUNE_LR),
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
-    model.fit(train_ds, validation_data=val_ds, epochs=FINETUNE_EPOCHS)
+    model.fit(
+        train_ds,
+        validation_data=val_ds,
+        epochs=FINETUNE_EPOCHS,
+        callbacks=[
+            tf.keras.callbacks.ReduceLROnPlateau(
+                monitor="val_loss", factor=0.3, patience=2, verbose=1
+            ),
+            tf.keras.callbacks.EarlyStopping(
+                monitor="val_loss", patience=4, restore_best_weights=True
+            ),
+        ],
+    )
 
 
 def export_tflite(model: tf.keras.Model) -> None:

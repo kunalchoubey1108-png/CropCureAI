@@ -40,9 +40,18 @@ class TFLiteService {
   static const double inputMean = 0;
   static const double inputStd = 255;
 
-  /// Used until labels.txt is readable; order must match the model head.
+  /// Used until labels.txt is readable; order must match the model head
+  /// (`CLASS_NAMES` in ml/train_export.py).
   static const List<String> defaultLabels = [
+    'Tomato___Bacterial_spot',
     'Tomato___Early_blight',
+    'Tomato___Late_blight',
+    'Tomato___Leaf_Mold',
+    'Tomato___Septoria_leaf_spot',
+    'Tomato___Spider_mites',
+    'Tomato___Target_Spot',
+    'Tomato___Yellow_Leaf_Curl_Virus',
+    'Tomato___Mosaic_virus',
     'Tomato___healthy',
     'Background_Non_Leaf',
   ];
@@ -159,7 +168,7 @@ class TFLiteService {
 
   /// Deterministic per-file mock: the same image always yields the same
   /// result (stable demos), and the scenario mix exercises every
-  /// reliability state — confident blight/healthy, low-confidence
+  /// reliability state — confident disease/healthy, low-confidence
   /// escalation, and background rejection.
   Future<Map<String, double>> _mockScores(String path) async {
     var seed = path.hashCode;
@@ -170,22 +179,37 @@ class TFLiteService {
     }
     final rng = Random(seed);
 
+    // Look classes up by name, never by index: the head's order changes
+    // whenever classes are added, and index 2 stopped meaning "background"
+    // the day the model went from 3 classes to 11.
     final labels = _labels;
-    final blight = labels[0];
-    final healthy = labels.length > 1 ? labels[1] : blight;
-    final background = labels.length > 2 ? labels[2] : healthy;
+    final background = labels.lastWhere(
+      (l) => l == 'Background_Non_Leaf',
+      orElse: () => labels.last,
+    );
+    final healthy = labels.firstWhere(
+      (l) => l == 'Tomato___healthy',
+      orElse: () => labels.first,
+    );
+    final diseases = [
+      for (final l in labels)
+        if (l != background && l != healthy) l,
+    ];
+    final disease = diseases.isEmpty
+        ? healthy
+        : diseases[rng.nextInt(diseases.length)];
 
     final String top;
     final double topScore;
     final roll = rng.nextDouble();
     if (roll < 0.40) {
-      top = blight;
+      top = disease;
       topScore = 0.72 + rng.nextDouble() * 0.23; // high-confidence disease
     } else if (roll < 0.70) {
       top = healthy;
       topScore = 0.72 + rng.nextDouble() * 0.23; // high-confidence healthy
     } else if (roll < 0.85) {
-      top = blight;
+      top = disease;
       topScore = 0.45 + rng.nextDouble() * 0.20; // low-confidence -> escalate
     } else {
       top = background;
