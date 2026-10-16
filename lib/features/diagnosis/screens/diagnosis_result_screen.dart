@@ -627,7 +627,14 @@ class _HighConfidenceBody extends StatelessWidget {
             _RemedySection(
               icon: Icons.science,
               title: lang == 'hi' ? 'रासायनिक उपचार' : 'Chemical Treatment',
-              steps: remedy.list('chemical_treatment', lang),
+              // Unreviewed advice collapses to one KVK pointer — a
+              // paragraph, not a numbered "step 1".
+              steps: remedy.chemicalReviewed
+                  ? remedy.chemicalSteps(lang)
+                  : const [],
+              body: remedy.chemicalReviewed
+                  ? null
+                  : remedy.chemicalSteps(lang).firstOrNull,
               color: AppColors.severityModerate,
             ),
             _RemedySection(

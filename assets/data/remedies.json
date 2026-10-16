@@ -1,7 +1,66 @@
 {
   "version": 1,
-  "updated": "2026-08-29",
+  "updated": "2026-10-16",
   "classes": {
+    "TOMATO_BACTERIAL_SPOT": {
+      "type": "disease",
+      "severity": "moderate",
+      "display_name": {
+        "en": "Tomato Bacterial Spot",
+        "hi": "टमाटर का जीवाणु धब्बा रोग (बैक्टीरियल स्पॉट)"
+      },
+      "pathogen": {
+        "en": "Bacteria — Xanthomonas species",
+        "hi": "जीवाणु — ज़ैंथोमोनास प्रजाति"
+      },
+      "symptoms": {
+        "en": "Many small (2–3 mm) dark brown to black spots that look greasy or water-soaked, often with a yellow halo. Spots can merge, and leaves turn yellow and drop. Fruit may show small raised, scabby spots.",
+        "hi": "पत्तियों पर कई छोटे (2–3 मिमी) गहरे भूरे से काले, चिकने या पानी से भीगे जैसे धब्बे, अक्सर पीले घेरे के साथ। धब्बे आपस में मिल सकते हैं और पत्तियां पीली होकर गिर जाती हैं। फलों पर छोटे उभरे, खुरदुरे धब्बे दिख सकते हैं।"
+      },
+      "organic_treatment": {
+        "en": [
+          "Remove and destroy infected leaves — do not compost them.",
+          "Do not touch or work among the plants while they are wet — bacteria spread on hands and tools.",
+          "Water at the base of the plant, not on the leaves.",
+          "A Pseudomonas fluorescens bio-agent spray can slow the spread — use the dose on the product label."
+        ],
+        "hi": [
+          "संक्रमित पत्तियों को तोड़कर नष्ट कर दें — खाद में न डालें।",
+          "पौधे गीले हों तब उन्हें न छुएं और न उनके बीच काम करें — जीवाणु हाथों और औज़ारों से फैलते हैं।",
+          "पानी पौधे की जड़ में दें, पत्तियों पर नहीं।",
+          "स्यूडोमोनास फ्लोरेसेंस जैविक घोल का छिड़काव फैलाव धीमा कर सकता है — उत्पाद के लेबल पर लिखी मात्रा का उपयोग करें।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Spray copper oxychloride 50% WP at 3 g per litre of water; repeat every 7–10 days in wet weather.",
+          "Follow the pre-harvest interval on the product label before picking fruit.",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "कॉपर ऑक्सीक्लोराइड 50% WP — 3 ग्राम प्रति लीटर पानी में घोलकर छिड़कें; गीले मौसम में हर 7–10 दिन में दोहराएं।",
+          "फल तोड़ने से पहले उत्पाद के लेबल पर लिखी तुड़ाई-पूर्व अवधि का पालन करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Use certified disease-free seed and healthy nursery seedlings.",
+          "Rotate crops — avoid tomato, potato, chilli or brinjal in the same field for 2 years.",
+          "After harvest, remove and destroy all plant debris from the field."
+        ],
+        "hi": [
+          "प्रमाणित रोगमुक्त बीज और स्वस्थ नर्सरी पौध का उपयोग करें।",
+          "फसल चक्र अपनाएं — 2 साल तक उसी खेत में टमाटर, आलू, मिर्च या बैंगन न लगाएं।",
+          "तुड़ाई के बाद खेत से पौधों के सभी अवशेष हटाकर नष्ट कर दें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If spots appear on fruit or spread quickly after rain, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "यदि फलों पर धब्बे दिखें या बारिश के बाद रोग तेज़ी से फैले, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
+      }
+    },
     "TOMATO_EARLY_BLIGHT": {
       "type": "disease",
       "severity": "moderate",
@@ -49,6 +108,7 @@
           "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
         ]
       },
+      "chemical_reviewed": true,
       "prevention": {
         "en": [
           "Rotate crops — avoid planting tomato or potato in the same field for 2 years.",
@@ -64,6 +124,425 @@
       "escalation_advice": {
         "en": "If more than half the plant is affected or fruit shows dark sunken spots, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
         "hi": "यदि आधे से अधिक पौधे प्रभावित हों या फलों पर गहरे धंसे धब्बे दिखें, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
+      }
+    },
+    "TOMATO_LATE_BLIGHT": {
+      "type": "disease",
+      "severity": "severe",
+      "display_name": {
+        "en": "Tomato Late Blight",
+        "hi": "टमाटर का पछेती झुलसा (लेट ब्लाइट)"
+      },
+      "pathogen": {
+        "en": "Water mould — Phytophthora infestans",
+        "hi": "जल फफूंद — फाइटोफ्थोरा इन्फेस्टान्स"
+      },
+      "symptoms": {
+        "en": "Large, irregular, water-soaked gray-green to brown patches, often starting at leaf tips and edges. In humid weather a white fuzzy growth appears on the underside. Stems and fruit get brown, greasy patches. Spreads very fast in cool, wet weather.",
+        "hi": "पत्तियों के सिरों और किनारों से शुरू होने वाले बड़े, अनियमित, पानी से भीगे जैसे भूरे-हरे से भूरे धब्बे। नम मौसम में पत्ती के नीचे सफ़ेद रुई जैसी फफूंद दिखती है। तनों और फलों पर भूरे, चिकने धब्बे बनते हैं। ठंडे, गीले मौसम में बहुत तेज़ी से फैलता है।"
+      },
+      "organic_treatment": {
+        "en": [
+          "Remove infected plants immediately, seal them in a bag and destroy them — do not compost.",
+          "Water in the morning at the base of the plant so leaves dry quickly.",
+          "Stake plants and prune the lowest leaves so air can move through the canopy."
+        ],
+        "hi": [
+          "संक्रमित पौधों को तुरंत उखाड़ें, थैले में बंद करके नष्ट करें — खाद में न डालें।",
+          "सुबह के समय पौधे की जड़ में पानी दें ताकि पत्तियां जल्दी सूख जाएं।",
+          "पौधों को सहारा दें और सबसे निचली पत्तियां छांट दें ताकि हवा का प्रवाह बना रहे।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Spray Metalaxyl 8% + Mancozeb 64% WP at 2.5 g per litre of water at the first sign; repeat after 10 days.",
+          "Alternate with Cymoxanil 8% + Mancozeb 64% WP at 3 g per litre to prevent resistance.",
+          "Follow the pre-harvest interval on the product label before picking fruit.",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "पहला लक्षण दिखते ही मेटालैक्सिल 8% + मैंकोजेब 64% WP — 2.5 ग्राम प्रति लीटर पानी में घोलकर छिड़कें; 10 दिन बाद दोहराएं।",
+          "प्रतिरोध रोकने के लिए साइमोक्सानिल 8% + मैंकोजेब 64% WP — 3 ग्राम प्रति लीटर के साथ बदल-बदल कर छिड़कें।",
+          "फल तोड़ने से पहले उत्पाद के लेबल पर लिखी तुड़ाई-पूर्व अवधि का पालन करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Do not plant tomato next to potato — late blight moves between the two crops.",
+          "Remove any self-sown tomato or potato plants around the field.",
+          "Grow resistant varieties where available and watch closely during cool, rainy spells."
+        ],
+        "hi": [
+          "टमाटर को आलू के पास न लगाएं — पछेती झुलसा दोनों फसलों के बीच फैलता है।",
+          "खेत के आसपास अपने-आप उगे टमाटर या आलू के पौधे हटा दें।",
+          "उपलब्ध हों तो प्रतिरोधी किस्में लगाएं और ठंडे, बरसाती मौसम में खेत पर कड़ी नज़र रखें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "Late blight can destroy a whole field within a week. If you see it, immediately contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551. Warn neighbouring farmers too.",
+        "hi": "पछेती झुलसा एक हफ्ते में पूरा खेत नष्ट कर सकता है। लक्षण दिखते ही तुरंत अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें। पड़ोसी किसानों को भी सावधान करें।"
+      }
+    },
+    "TOMATO_LEAF_MOLD": {
+      "type": "disease",
+      "severity": "moderate",
+      "display_name": {
+        "en": "Tomato Leaf Mold",
+        "hi": "टमाटर का पत्ती फफूंद रोग (लीफ मोल्ड)"
+      },
+      "pathogen": {
+        "en": "Fungus — Passalora fulva",
+        "hi": "फफूंद — पैसालोरा फुल्वा"
+      },
+      "symptoms": {
+        "en": "Pale green to yellow patches on the upper surface of older leaves, with olive-green to brown velvety mold underneath. Affected leaves curl, wither and drop. Most common in humid polyhouses and dense plantings.",
+        "hi": "पुरानी पत्तियों की ऊपरी सतह पर हल्के हरे से पीले धब्बे और नीचे की ओर जैतूनी-हरी से भूरी मखमली फफूंद। प्रभावित पत्तियां मुड़कर सूख जाती हैं और गिर जाती हैं। नम पॉलीहाउस और घनी बुवाई में सबसे आम।"
+      },
+      "organic_treatment": {
+        "en": [
+          "Remove and destroy infected leaves — do not compost them.",
+          "Lower the humidity — open polyhouse vents and avoid watering late in the day.",
+          "Water at the base of the plant, not on the leaves.",
+          "Stake plants and prune the lowest leaves so air can move through the canopy."
+        ],
+        "hi": [
+          "संक्रमित पत्तियों को तोड़कर नष्ट कर दें — खाद में न डालें।",
+          "नमी कम करें — पॉलीहाउस के रोशनदान खोलें और शाम को पानी देने से बचें।",
+          "पानी पौधे की जड़ में दें, पत्तियों पर नहीं।",
+          "पौधों को सहारा दें और सबसे निचली पत्तियां छांट दें ताकि हवा का प्रवाह बना रहे।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Spray Chlorothalonil 75% WP at 2 g per litre of water, or Mancozeb 75% WP at 2.5 g per litre; repeat every 10–14 days.",
+          "Alternate fungicides between sprays to prevent resistance.",
+          "Follow the pre-harvest interval on the product label before picking fruit.",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "क्लोरोथालोनिल 75% WP — 2 ग्राम प्रति लीटर, या मैंकोजेब 75% WP — 2.5 ग्राम प्रति लीटर पानी में घोलकर छिड़कें; हर 10–14 दिन में दोहराएं।",
+          "प्रतिरोध रोकने के लिए हर छिड़काव में दवा बदल-बदल कर उपयोग करें।",
+          "फल तोड़ने से पहले उत्पाद के लेबल पर लिखी तुड़ाई-पूर्व अवधि का पालन करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Keep humidity below about 85% in polyhouses with good ventilation.",
+          "Keep plant spacing wide for good air flow.",
+          "Grow resistant varieties where available.",
+          "After harvest, remove and destroy all plant debris from the field."
+        ],
+        "hi": [
+          "अच्छे वायु-संचार से पॉलीहाउस में नमी लगभग 85% से कम रखें।",
+          "हवा के अच्छे प्रवाह के लिए पौधों के बीच पर्याप्त दूरी रखें।",
+          "उपलब्ध हों तो प्रतिरोधी किस्में लगाएं।",
+          "तुड़ाई के बाद खेत से पौधों के सभी अवशेष हटाकर नष्ट कर दें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If mold covers most leaves despite better ventilation, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "बेहतर वायु-संचार के बाद भी यदि फफूंद ज़्यादातर पत्तियों पर फैल जाए, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
+      }
+    },
+    "TOMATO_SEPTORIA_LEAF_SPOT": {
+      "type": "disease",
+      "severity": "moderate",
+      "display_name": {
+        "en": "Tomato Septoria Leaf Spot",
+        "hi": "टमाटर का सेप्टोरिया पत्ती धब्बा रोग"
+      },
+      "pathogen": {
+        "en": "Fungus — Septoria lycopersici",
+        "hi": "फफूंद — सेप्टोरिया लाइकोपर्सिकी"
+      },
+      "symptoms": {
+        "en": "Many small (about 3 mm) round spots with dark brown borders and gray or tan centres, sometimes with tiny black dots inside. Starts on the lowest leaves and moves upward; badly affected leaves turn yellow and fall.",
+        "hi": "कई छोटे (लगभग 3 मिमी) गोल धब्बे, जिनके किनारे गहरे भूरे और बीच का भाग धूसर या हल्का भूरा होता है, कभी-कभी अंदर छोटे काले बिंदु। सबसे निचली पत्तियों से शुरू होकर ऊपर बढ़ता है; ज़्यादा प्रभावित पत्तियां पीली होकर गिर जाती हैं।"
+      },
+      "organic_treatment": {
+        "en": [
+          "Remove and destroy infected lower leaves as soon as spots appear — do not compost them.",
+          "Mulch the soil with straw to stop spores splashing from soil onto leaves.",
+          "Water at the base of the plant, not on the leaves.",
+          "Stake plants and prune the lowest leaves so air can move through the canopy."
+        ],
+        "hi": [
+          "धब्बे दिखते ही संक्रमित निचली पत्तियां तोड़कर नष्ट कर दें — खाद में न डालें।",
+          "मिट्टी से पत्तियों पर रोगाणुओं के छींटे रोकने के लिए पुआल की मल्चिंग करें।",
+          "पानी पौधे की जड़ में दें, पत्तियों पर नहीं।",
+          "पौधों को सहारा दें और सबसे निचली पत्तियां छांट दें ताकि हवा का प्रवाह बना रहे।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Spray Mancozeb 75% WP at 2.5 g per litre of water, or Chlorothalonil 75% WP at 2 g per litre; repeat every 7–10 days.",
+          "Alternate fungicides between sprays to prevent resistance.",
+          "Follow the pre-harvest interval on the product label before picking fruit.",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "मैंकोजेब 75% WP — 2.5 ग्राम प्रति लीटर, या क्लोरोथालोनिल 75% WP — 2 ग्राम प्रति लीटर पानी में घोलकर छिड़कें; हर 7–10 दिन में दोहराएं।",
+          "प्रतिरोध रोकने के लिए हर छिड़काव में दवा बदल-बदल कर उपयोग करें।",
+          "फल तोड़ने से पहले उत्पाद के लेबल पर लिखी तुड़ाई-पूर्व अवधि का पालन करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Rotate crops — avoid tomato, potato, chilli or brinjal in the same field for 2 years.",
+          "Remove nightshade and other related weeds that carry the fungus.",
+          "After harvest, remove and destroy all plant debris from the field."
+        ],
+        "hi": [
+          "फसल चक्र अपनाएं — 2 साल तक उसी खेत में टमाटर, आलू, मिर्च या बैंगन न लगाएं।",
+          "मकोय और ऐसे संबंधित खरपतवार हटा दें जिनमें यह फफूंद पलती है।",
+          "तुड़ाई के बाद खेत से पौधों के सभी अवशेष हटाकर नष्ट कर दें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If spots reach the upper leaves or the plant is losing many leaves, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "यदि धब्बे ऊपरी पत्तियों तक पहुंच जाएं या पौधे की बहुत पत्तियां गिरने लगें, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
+      }
+    },
+    "TOMATO_SPIDER_MITES": {
+      "type": "disease",
+      "severity": "moderate",
+      "display_name": {
+        "en": "Tomato Spider Mite Damage",
+        "hi": "टमाटर पर मकड़ी घुन (स्पाइडर माइट) का प्रकोप"
+      },
+      "pathogen": {
+        "en": "Pest — two-spotted spider mite (Tetranychus urticae)",
+        "hi": "कीट — दो-धब्बेदार मकड़ी घुन (टेट्रानाइकस अर्टिकी)"
+      },
+      "symptoms": {
+        "en": "Tiny yellow-white speckles across the leaf that later turn bronze or yellow. Fine webbing on the underside, where tiny moving dots can be seen with a magnifier. Worst in hot, dry weather.",
+        "hi": "पत्ती पर छोटे पीले-सफ़ेद चित्तीदार निशान जो बाद में तांबई या पीले हो जाते हैं। पत्ती के नीचे महीन जाला, जहां आवर्धक लेंस से छोटे चलते हुए बिंदु दिखते हैं। गर्म, सूखे मौसम में सबसे ज़्यादा।"
+      },
+      "organic_treatment": {
+        "en": [
+          "Spray a strong jet of plain water on the underside of leaves to knock mites off.",
+          "Spray neem oil (5 ml per litre of water) on the underside of leaves every 5–7 days in the evening.",
+          "Remove and destroy heavily webbed leaves."
+        ],
+        "hi": [
+          "पत्तियों के नीचे की ओर सादे पानी की तेज़ धार मारें ताकि घुन गिर जाएं।",
+          "हर 5–7 दिन में शाम को पत्तियों के नीचे की ओर नीम का तेल (5 मिली प्रति लीटर पानी) छिड़कें।",
+          "घने जाले वाली पत्तियां तोड़कर नष्ट कर दें।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Spray wettable sulphur 80% WP at 2.5 g per litre of water, covering the underside of leaves.",
+          "If mites persist, use a registered miticide such as spiromesifen 22.9% SC at the label dose.",
+          "Avoid broad-spectrum insecticides — they kill the mites' natural enemies and make outbreaks worse.",
+          "Follow the pre-harvest interval on the product label before picking fruit.",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "घुलनशील गंधक (वेटेबल सल्फर) 80% WP — 2.5 ग्राम प्रति लीटर पानी में घोलकर पत्तियों के नीचे की ओर अच्छी तरह छिड़कें।",
+          "घुन बने रहें तो स्पाइरोमेसिफेन 22.9% SC जैसी पंजीकृत माइटनाशक दवा लेबल पर लिखी मात्रा में उपयोग करें।",
+          "व्यापक असर वाले कीटनाशकों से बचें — वे घुन के प्राकृतिक शत्रुओं को मार देते हैं और प्रकोप बढ़ जाता है।",
+          "फल तोड़ने से पहले उत्पाद के लेबल पर लिखी तुड़ाई-पूर्व अवधि का पालन करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Check the underside of leaves weekly during hot, dry spells.",
+          "Keep field edges free of weeds and dust.",
+          "Avoid excess nitrogen fertilizer, which favours mites."
+        ],
+        "hi": [
+          "गर्म, सूखे मौसम में हर सप्ताह पत्तियों के नीचे की ओर जांच करें।",
+          "खेत की मेड़ों को खरपतवार और धूल से मुक्त रखें।",
+          "ज़्यादा नाइट्रोजन खाद से बचें, इससे घुन बढ़ते हैं।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If leaves across the field are turning bronze and webbed, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "यदि पूरे खेत में पत्तियां तांबई होकर जालों से ढक रही हों, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
+      }
+    },
+    "TOMATO_TARGET_SPOT": {
+      "type": "disease",
+      "severity": "moderate",
+      "display_name": {
+        "en": "Tomato Target Spot",
+        "hi": "टमाटर का टारगेट स्पॉट रोग"
+      },
+      "pathogen": {
+        "en": "Fungus — Corynespora cassiicola",
+        "hi": "फफूंद — कोरिनेस्पोरा कैसिकोला"
+      },
+      "symptoms": {
+        "en": "Brown spots with lighter centres and faint concentric rings, sometimes with a yellow halo. It looks similar to early blight. Spots can merge and leaves drop early; fruit may get sunken brown spots.",
+        "hi": "हल्के बीच वाले और धुंधले गोल छल्लों वाले भूरे धब्बे, कभी-कभी पीले घेरे के साथ। यह अगेती झुलसा जैसा दिखता है। धब्बे आपस में मिल सकते हैं और पत्तियां जल्दी गिर जाती हैं; फलों पर धंसे भूरे धब्बे बन सकते हैं।"
+      },
+      "organic_treatment": {
+        "en": [
+          "Remove and destroy infected leaves — do not compost them.",
+          "Stake plants and prune the lowest leaves so air can move through the canopy.",
+          "Mulch the soil with straw to stop spores splashing from soil onto leaves.",
+          "Water at the base of the plant, not on the leaves."
+        ],
+        "hi": [
+          "संक्रमित पत्तियों को तोड़कर नष्ट कर दें — खाद में न डालें।",
+          "पौधों को सहारा दें और सबसे निचली पत्तियां छांट दें ताकि हवा का प्रवाह बना रहे।",
+          "मिट्टी से पत्तियों पर रोगाणुओं के छींटे रोकने के लिए पुआल की मल्चिंग करें।",
+          "पानी पौधे की जड़ में दें, पत्तियों पर नहीं।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Spray Azoxystrobin 23% SC at 1 ml per litre of water, or Chlorothalonil 75% WP at 2 g per litre; repeat every 10–14 days.",
+          "Alternate fungicides between sprays to prevent resistance.",
+          "Follow the pre-harvest interval on the product label before picking fruit.",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "एज़ोक्सीस्ट्रोबिन 23% SC — 1 मिली प्रति लीटर, या क्लोरोथालोनिल 75% WP — 2 ग्राम प्रति लीटर पानी में घोलकर छिड़कें; हर 10–14 दिन में दोहराएं।",
+          "प्रतिरोध रोकने के लिए हर छिड़काव में दवा बदल-बदल कर उपयोग करें।",
+          "फल तोड़ने से पहले उत्पाद के लेबल पर लिखी तुड़ाई-पूर्व अवधि का पालन करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Rotate crops — avoid tomato, potato, chilli or brinjal in the same field for 2 years.",
+          "Keep plant spacing wide for good air flow.",
+          "After harvest, remove and destroy all plant debris from the field."
+        ],
+        "hi": [
+          "फसल चक्र अपनाएं — 2 साल तक उसी खेत में टमाटर, आलू, मिर्च या बैंगन न लगाएं।",
+          "हवा के अच्छे प्रवाह के लिए पौधों के बीच पर्याप्त दूरी रखें।",
+          "तुड़ाई के बाद खेत से पौधों के सभी अवशेष हटाकर नष्ट कर दें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If spots spread to fruit or most leaves, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "यदि धब्बे फलों या ज़्यादातर पत्तियों तक फैल जाएं, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
+      }
+    },
+    "TOMATO_YELLOW_LEAF_CURL_VIRUS": {
+      "type": "disease",
+      "severity": "severe",
+      "display_name": {
+        "en": "Tomato Yellow Leaf Curl Virus",
+        "hi": "टमाटर का पीला पत्ती मोड़क विषाणु रोग"
+      },
+      "pathogen": {
+        "en": "Virus — Tomato yellow leaf curl virus, spread by whitefly",
+        "hi": "विषाणु — टमाटर पीला पत्ती मोड़क विषाणु, सफ़ेद मक्खी से फैलता है"
+      },
+      "symptoms": {
+        "en": "Leaves curl upward and become cupped, small and yellow at the edges. Plants are stunted with a bushy top, flowers drop and few fruit form. Tiny white flies rise from the plant when it is shaken.",
+        "hi": "पत्तियां ऊपर की ओर मुड़कर कटोरी जैसी, छोटी और किनारों पर पीली हो जाती हैं। पौधा बौना रह जाता है और ऊपर से झाड़ीनुमा हो जाता है, फूल गिर जाते हैं और बहुत कम फल लगते हैं। पौधा हिलाने पर छोटी सफ़ेद मक्खियां उड़ती हैं।"
+      },
+      "organic_treatment": {
+        "en": [
+          "No spray can cure an infected plant. Uproot infected plants early, seal them in a bag and destroy them to stop the spread.",
+          "Put up yellow sticky traps around the field to catch whiteflies.",
+          "Spray neem oil (5 ml per litre of water) on the underside of leaves to reduce whiteflies."
+        ],
+        "hi": [
+          "कोई भी छिड़काव संक्रमित पौधे को ठीक नहीं कर सकता। फैलाव रोकने के लिए संक्रमित पौधों को जल्दी उखाड़ें, थैले में बंद करके नष्ट करें।",
+          "सफ़ेद मक्खी पकड़ने के लिए खेत में पीले चिपचिपे ट्रैप लगाएं।",
+          "सफ़ेद मक्खी कम करने के लिए पत्तियों के नीचे की ओर नीम का तेल (5 मिली प्रति लीटर पानी) छिड़कें।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "Chemicals cannot cure the virus — they only control the whitefly that spreads it.",
+          "Spray Imidacloprid 17.8% SL at 0.3 ml per litre of water against whitefly; alternate with Thiamethoxam 25% WG at 0.3 g per litre.",
+          "Follow the pre-harvest interval on the product label before picking fruit.",
+          "Wear gloves and a face cover while spraying; spray in calm, dry weather."
+        ],
+        "hi": [
+          "रसायन विषाणु को ठीक नहीं कर सकते — वे केवल इसे फैलाने वाली सफ़ेद मक्खी को नियंत्रित करते हैं।",
+          "सफ़ेद मक्खी के लिए इमिडाक्लोप्रिड 17.8% SL — 0.3 मिली प्रति लीटर पानी में छिड़कें; थायामेथोक्साम 25% WG — 0.3 ग्राम प्रति लीटर के साथ बदल-बदल कर उपयोग करें।",
+          "फल तोड़ने से पहले उत्पाद के लेबल पर लिखी तुड़ाई-पूर्व अवधि का पालन करें।",
+          "छिड़काव करते समय दस्ताने और मुंह पर कपड़ा पहनें; शांत, सूखे मौसम में छिड़कें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Raise nursery seedlings under insect-proof net so they are not infected before transplanting.",
+          "Grow leaf-curl tolerant varieties or hybrids.",
+          "Remove weeds that host whitefly, and avoid planting next to an infected crop."
+        ],
+        "hi": [
+          "नर्सरी के पौधे कीटरोधी जाली के नीचे तैयार करें ताकि रोपाई से पहले वे संक्रमित न हों।",
+          "पत्ती मोड़क रोग सहनशील किस्में या संकर (हाइब्रिड) लगाएं।",
+          "सफ़ेद मक्खी को पनाह देने वाले खरपतवार हटाएं और संक्रमित फसल के पास रोपाई न करें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If many plants show leaf curl, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551. Early removal of infected plants protects the rest of the field.",
+        "hi": "यदि कई पौधों में पत्ती मोड़क दिखे, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें। संक्रमित पौधे जल्दी हटाने से बाकी खेत बचता है।"
+      }
+    },
+    "TOMATO_MOSAIC_VIRUS": {
+      "type": "disease",
+      "severity": "moderate",
+      "display_name": {
+        "en": "Tomato Mosaic Virus",
+        "hi": "टमाटर का मोज़ेक विषाणु रोग"
+      },
+      "pathogen": {
+        "en": "Virus — Tomato mosaic virus, spread by touch, tools and seed",
+        "hi": "विषाणु — टमाटर मोज़ेक विषाणु, छूने, औज़ारों और बीज से फैलता है"
+      },
+      "symptoms": {
+        "en": "A mottled pattern of light and dark green patches on the leaves. Leaves may be wrinkled, curled or narrow and fern-like. Plants are stunted and fruit may ripen unevenly.",
+        "hi": "पत्तियों पर हल्के और गहरे हरे रंग के चितकबरे धब्बे। पत्तियां सिकुड़ी, मुड़ी या पतली और फर्न जैसी हो सकती हैं। पौधा बौना रह जाता है और फल असमान रूप से पकते हैं।"
+      },
+      "organic_treatment": {
+        "en": [
+          "No spray can cure an infected plant. Uproot infected plants and destroy them away from the field.",
+          "Wash hands with soap and disinfect tools before touching healthy plants.",
+          "Work on healthy plants first and infected areas last.",
+          "Do not smoke or handle tobacco while working with plants — tobacco can carry the virus."
+        ],
+        "hi": [
+          "कोई भी छिड़काव संक्रमित पौधे को ठीक नहीं कर सकता। संक्रमित पौधों को उखाड़कर खेत से दूर नष्ट करें।",
+          "स्वस्थ पौधों को छूने से पहले साबुन से हाथ धोएं और औज़ारों को कीटाणुरहित करें।",
+          "पहले स्वस्थ पौधों पर काम करें और संक्रमित हिस्से पर सबसे आख़िर में।",
+          "पौधों पर काम करते समय धूम्रपान न करें और तंबाकू न छुएं — तंबाकू में यह विषाणु हो सकता है।"
+        ]
+      },
+      "chemical_treatment": {
+        "en": [
+          "There is no chemical cure for mosaic virus. Do not buy sprays sold as a cure."
+        ],
+        "hi": [
+          "मोज़ेक विषाणु का कोई रासायनिक इलाज नहीं है। इलाज के नाम पर बेचे जाने वाले छिड़काव न ख़रीदें।"
+        ]
+      },
+      "chemical_reviewed": false,
+      "prevention": {
+        "en": [
+          "Use certified virus-free seed and resistant varieties.",
+          "Rotate crops — avoid tomato, potato, chilli or brinjal in the same field for 2 years.",
+          "After harvest, remove and destroy all plant debris from the field."
+        ],
+        "hi": [
+          "प्रमाणित विषाणु-मुक्त बीज और प्रतिरोधी किस्में उपयोग करें।",
+          "फसल चक्र अपनाएं — 2 साल तक उसी खेत में टमाटर, आलू, मिर्च या बैंगन न लगाएं।",
+          "तुड़ाई के बाद खेत से पौधों के सभी अवशेष हटाकर नष्ट कर दें।"
+        ]
+      },
+      "escalation_advice": {
+        "en": "If many plants show mosaic patterns, contact your local Krishi Vigyan Kendra (KVK) or the Kisan Call Centre at 1800-180-1551.",
+        "hi": "यदि कई पौधों में मोज़ेक के निशान दिखें, तो अपने नज़दीकी कृषि विज्ञान केंद्र (KVK) या किसान कॉल सेंटर 1800-180-1551 पर संपर्क करें।"
       }
     },
     "TOMATO_HEALTHY": {

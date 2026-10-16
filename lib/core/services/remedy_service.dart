@@ -55,6 +55,32 @@ class Remedy {
 
   String displayName(String lang) => text('display_name', lang);
 
+  /// Shown in place of chemical steps nobody has checked yet.
+  static const Map<String, String> unreviewedChemicalNotice = {
+    'en':
+        'Chemical spray advice for this problem has not yet been checked by '
+        'an agricultural expert. Before buying or spraying any chemical, ask '
+        'your local Krishi Vigyan Kendra (KVK) or call the Kisan Call Centre '
+        'at 1800-180-1551.',
+    'hi':
+        'इस समस्या के लिए रासायनिक छिड़काव की सलाह अभी किसी कृषि विशेषज्ञ '
+        'द्वारा जांची नहीं गई है। कोई भी रसायन ख़रीदने या छिड़कने से पहले अपने '
+        'नज़दीकी कृषि विज्ञान केंद्र (KVK) से पूछें या किसान कॉल सेंटर '
+        '1800-180-1551 पर कॉल करें।',
+  };
+
+  /// Fail-safe: only an explicit `"chemical_reviewed": true` counts. A wrong
+  /// pesticide dose read out in Hindi is real-world harm, so a missing flag
+  /// must hide the advice, not show it.
+  bool get chemicalReviewed => data['chemical_reviewed'] == true;
+
+  /// Chemical steps if reviewed, otherwise a single KVK pointer.
+  List<String> chemicalSteps(String lang) {
+    final steps = list('chemical_treatment', lang);
+    if (steps.isEmpty || chemicalReviewed) return steps;
+    return [unreviewedChemicalNotice[lang] ?? unreviewedChemicalNotice['en']!];
+  }
+
   /// Flat narration of the remedy for the voice assistant.
   String speechText(String lang) {
     final hi = lang == 'hi';
@@ -67,7 +93,7 @@ class Remedy {
           ..add(hi ? 'जैविक उपचार:' : 'Organic treatment:')
           ..addAll(organic);
       }
-      final chemical = list('chemical_treatment', lang);
+      final chemical = chemicalSteps(lang);
       if (chemical.isNotEmpty) {
         parts
           ..add(hi ? 'रासायनिक उपचार:' : 'Chemical treatment:')
